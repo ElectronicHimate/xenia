@@ -66,7 +66,8 @@ const uint32_t X64Emitter::gpr_reg_map_[X64Emitter::GPR_COUNT] = {
 
 const uint32_t X64Emitter::xmm_reg_map_[X64Emitter::XMM_COUNT] = {
     4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-};
+    // AVX512 registers
+    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
 
 X64Emitter::X64Emitter(X64Backend* backend, XbyakAllocator* allocator)
     : CodeGenerator(kMaxCodeSize, Xbyak::AutoGrow, allocator),

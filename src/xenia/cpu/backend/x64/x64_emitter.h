@@ -166,8 +166,9 @@ class X64Emitter : public Xbyak::CodeGenerator {
   //            xmm0-2
   // Available: rbx, r10-r15
   //            xmm4-xmm15 (save to get xmm3)
+  //            xmm4-xmm31 (AVX512)
   static const int GPR_COUNT = 7;
-  static const int XMM_COUNT = 12;
+  static const int XMM_COUNT = 12 + 16;
 
   static void SetupReg(const hir::Value* v, Xbyak::Reg8& r) {
     auto idx = gpr_reg_map_[v->reg.index];

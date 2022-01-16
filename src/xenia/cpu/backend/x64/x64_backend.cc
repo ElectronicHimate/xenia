@@ -59,6 +59,8 @@ class X64ThunkEmitter : public X64Emitter {
   ResolveFunctionThunk EmitResolveFunctionThunk();
 
  private:
+  uint32_t GetThunkSize() const;
+
   // The following four functions provide save/load functionality for registers.
   // They assume at least StackLayout::THUNK_STACK_SIZE bytes have been
   // allocated on the stack.
@@ -429,7 +431,7 @@ HostToGuestThunk X64ThunkEmitter::EmitHostToGuestThunk() {
     size_t tail;
   } code_offsets = {};
 
-  const size_t stack_size = StackLayout::THUNK_STACK_SIZE;
+  const uint32_t stack_size = GetThunkSize();
 
   code_offsets.prolog = getSize();
 
@@ -471,7 +473,7 @@ HostToGuestThunk X64ThunkEmitter::EmitHostToGuestThunk() {
   func_info.code_size.tail = getSize() - code_offsets.tail;
   func_info.prolog_stack_alloc_offset =
       code_offsets.prolog_stack_alloc - code_offsets.prolog;
-  func_info.stack_size = stack_size;
+  func_info.stack_size = GetThunkSize();
 
   void* fn = Emplace(func_info);
   return (HostToGuestThunk)fn;
@@ -491,7 +493,7 @@ GuestToHostThunk X64ThunkEmitter::EmitGuestToHostThunk() {
     size_t tail;
   } code_offsets = {};
 
-  const size_t stack_size = StackLayout::THUNK_STACK_SIZE;
+  const uint32_t stack_size = GetThunkSize();
 
   code_offsets.prolog = getSize();
 
@@ -547,7 +549,7 @@ ResolveFunctionThunk X64ThunkEmitter::EmitResolveFunctionThunk() {
     size_t tail;
   } code_offsets = {};
 
-  const size_t stack_size = StackLayout::THUNK_STACK_SIZE;
+  const uint32_t stack_size = GetThunkSize();
 
   code_offsets.prolog = getSize();
 
@@ -587,6 +589,13 @@ ResolveFunctionThunk X64ThunkEmitter::EmitResolveFunctionThunk() {
 
   void* fn = Emplace(func_info);
   return (ResolveFunctionThunk)fn;
+}
+
+uint32_t X64ThunkEmitter::GetThunkSize() const {
+  if ((feature_flags_ & kX64EmitAVX512Ortho) == kX64EmitAVX512Ortho) {
+    return StackLayout::THUNK_STACK_EVEX_SIZE;
+  }
+  return StackLayout::THUNK_STACK_SIZE;
 }
 
 void X64ThunkEmitter::EmitSaveVolatileRegs() {
@@ -657,6 +666,26 @@ void X64ThunkEmitter::EmitSaveNonvolatileRegs() {
   vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm[7])], xmm13);
   vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm[8])], xmm14);
   vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm[9])], xmm15);
+
+  // AVX512VL
+  if ((feature_flags_ & kX64EmitAVX512Ortho) == kX64EmitAVX512Ortho) {
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[0])], xmm16);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[1])], xmm17);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[2])], xmm18);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[3])], xmm19);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[4])], xmm20);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[5])], xmm21);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[6])], xmm22);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[7])], xmm23);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[8])], xmm24);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[9])], xmm25);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[10])], xmm26);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[11])], xmm27);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[12])], xmm28);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[13])], xmm29);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[14])], xmm30);
+    vmovaps(qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[15])], xmm31);
+  }
 #endif
 }
 
@@ -684,6 +713,26 @@ void X64ThunkEmitter::EmitLoadNonvolatileRegs() {
   vmovaps(xmm13, qword[rsp + offsetof(StackLayout::Thunk, xmm[7])]);
   vmovaps(xmm14, qword[rsp + offsetof(StackLayout::Thunk, xmm[8])]);
   vmovaps(xmm15, qword[rsp + offsetof(StackLayout::Thunk, xmm[9])]);
+
+  // Additional AVX512 registers
+  if ((feature_flags_ & kX64EmitAVX512Ortho) == kX64EmitAVX512Ortho) {
+    vmovaps(xmm16, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[0])]);
+    vmovaps(xmm17, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[1])]);
+    vmovaps(xmm18, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[2])]);
+    vmovaps(xmm19, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[3])]);
+    vmovaps(xmm20, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[4])]);
+    vmovaps(xmm21, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[5])]);
+    vmovaps(xmm22, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[6])]);
+    vmovaps(xmm23, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[7])]);
+    vmovaps(xmm24, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[8])]);
+    vmovaps(xmm25, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[9])]);
+    vmovaps(xmm26, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[10])]);
+    vmovaps(xmm27, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[11])]);
+    vmovaps(xmm28, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[12])]);
+    vmovaps(xmm29, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[13])]);
+    vmovaps(xmm30, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[14])]);
+    vmovaps(xmm31, qword[rsp + offsetof(StackLayout::Thunk, xmm_evex[15])]);
+  }
 #endif
 }
 

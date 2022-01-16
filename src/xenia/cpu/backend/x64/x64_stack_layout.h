@@ -77,30 +77,82 @@ class StackLayout {
    *  +------------------+------------------+
    *  | xmm14 (Win32)    | (unused)         | rsp + 0x0E0
    *  |                  |                  |
-   *  +------------------+------------------+
+   *  +-AVX512VL---------+------------------+
    *  | xmm15 (Win32)    | (unused)         | rsp + 0x0F0
    *  |                  |                  |
    *  +------------------+------------------+
-   *  | (return address) | (return address) | rsp + 0x100
+   *  | xmm16 (Win32)    | (unused)         | rsp + 0x100
+   *  |                  |                  |
    *  +------------------+------------------+
-   *  | (rcx home)       | (rcx home)       | rsp + 0x108
+   *  | xmm17 (Win32)    | (unused)         | rsp + 0x110
+   *  |                  |                  |
    *  +------------------+------------------+
-   *  | (rdx home)       | (rdx home)       | rsp + 0x110
+   *  | xmm18 (Win32)    | (unused)         | rsp + 0x120
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm19 (Win32)    | (unused)         | rsp + 0x130
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm20 (Win32)    | (unused)         | rsp + 0x140
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm21 (Win32)    | (unused)         | rsp + 0x150
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm22 (Win32)    | (unused)         | rsp + 0x160
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm23 (Win32)    | (unused)         | rsp + 0x170
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm24 (Win32)    | (unused)         | rsp + 0x180
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm25 (Win32)    | (unused)         | rsp + 0x190
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm26 (Win32)    | (unused)         | rsp + 0x1A0
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm27 (Win32)    | (unused)         | rsp + 0x1B0
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm28 (Win32)    | (unused)         | rsp + 0x1C0
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm29 (Win32)    | (unused)         | rsp + 0x1D0
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm30 (Win32)    | (unused)         | rsp + 0x1E0
+   *  |                  |                  |
+   *  +------------------+------------------+
+   *  | xmm31 (Win32)    | (unused)         | rsp + 0x1F0
+   *  |                  |                  |
+   *  +-AVX512VL---------+------------------+
+   *  | (return address) | (return address) | rsp + 0x1F8
+   *  +------------------+------------------+
+   *  | (rcx home)       | (rcx home)       | rsp + 0x200
+   *  +------------------+------------------+
+   *  | (rdx home)       | (rdx home)       | rsp + 0x208
    *  +------------------+------------------+
    */
   XEPACKEDSTRUCT(Thunk, {
     uint64_t arg_temp[3];
     uint64_t r[9];
     vec128_t xmm[10];
+    vec128_t xmm_evex[16];
   });
   static_assert(sizeof(Thunk) % 16 == 0,
                 "sizeof(Thunk) must be a multiple of 16!");
-  static const size_t THUNK_STACK_SIZE = sizeof(Thunk) + 8;
+
+  static const uint32_t THUNK_STACK_SIZE =
+      sizeof(Thunk) - sizeof(Thunk::xmm_evex) + 8;
+  static const uint32_t THUNK_STACK_EVEX_SIZE = sizeof(Thunk) + 8;
 
   /**
    *
    *
-   * Guest stack:
+   * Guest tack:
    *  +------------------+
    *  | arg temp, 3 * 8  | rsp + 0
    *  |                  |
