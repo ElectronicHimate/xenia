@@ -2346,16 +2346,31 @@ EMITTER_OPCODE_TABLE(OPCODE_NEG, NEG_I8, NEG_I16, NEG_I32, NEG_I64, NEG_F32,
 // ============================================================================
 struct ABS_F32 : Sequence<ABS_F32, I<OPCODE_ABS, F32Op, F32Op>> {
   static void Emit(X64Emitter& e, const EmitArgType& i) {
+    if (e.IsFeatureEnabled(kX64EmitAVX512Ortho64)) {
+      e.vrangeps(i.dest, i.src1, i.src1,
+                 VRangeOpcode(VRangeSelect::Min, VRangeSign::Positive));
+      return;
+    }
     e.vpand(i.dest, i.src1, e.GetXmmConstPtr(XMMAbsMaskPS));
   }
 };
 struct ABS_F64 : Sequence<ABS_F64, I<OPCODE_ABS, F64Op, F64Op>> {
   static void Emit(X64Emitter& e, const EmitArgType& i) {
+    if (e.IsFeatureEnabled(kX64EmitAVX512Ortho64)) {
+      e.vrangesd(i.dest, i.src1, i.src1,
+                 VRangeOpcode(VRangeSelect::Min, VRangeSign::Positive));
+      return;
+    }
     e.vpand(i.dest, i.src1, e.GetXmmConstPtr(XMMAbsMaskPD));
   }
 };
 struct ABS_V128 : Sequence<ABS_V128, I<OPCODE_ABS, V128Op, V128Op>> {
   static void Emit(X64Emitter& e, const EmitArgType& i) {
+    if (e.IsFeatureEnabled(kX64EmitAVX512Ortho64)) {
+      e.vrangeps(i.dest, i.src1, i.src1,
+                 VRangeOpcode(VRangeSelect::Min, VRangeSign::Positive));
+      return;
+    }
     e.vpand(i.dest, i.src1, e.GetXmmConstPtr(XMMAbsMaskPS));
   }
 };
