@@ -38,6 +38,30 @@ constexpr uint8_t b = 0b11001100;
 constexpr uint8_t c = 0b10101010;
 }  // namespace TernaryOperand
 
+// Opcodes for use with vrange* instructions
+enum class VRangeSelect : uint8_t {
+  Min = 0b00,
+  Max = 0b01,
+  AbsMin = 0b10,  // Smaller absolute value
+  AbsMax = 0b11,  // Larger absolute value
+};
+
+enum class VRangeSign : uint8_t {
+  A = 0b00,         // Copy sign of operand A
+  Preserve = 0b01,  // Leave sign as is
+  Positive = 0b10,  // Set Positive
+  Negative = 0b11,  // Set Negative
+};
+
+// Generates 8-bit opcode for the vrange* instruction
+constexpr uint8_t VRangeOpcode(VRangeSelect range_select,
+                               VRangeSign range_sign) {
+  uint8_t RangeLut = 0;
+  RangeLut = (static_cast<uint8_t>(range_select) & 0b11) << 0;
+  RangeLut = (static_cast<uint8_t>(range_sign) & 0b11) << 2;
+  return RangeLut;
+}
+
 }  // namespace x64
 }  // namespace backend
 }  // namespace cpu
