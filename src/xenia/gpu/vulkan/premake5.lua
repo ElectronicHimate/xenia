@@ -68,7 +68,7 @@ project("xenia-gpu-vulkan-trace-viewer")
       "xenia-cpu-backend-x64",
     })
 
-  filter("platforms:Linux")
+  filter("platforms:Linux-*")
     links({
       "X11",
       "xcb",
@@ -131,7 +131,7 @@ project("xenia-gpu-vulkan-trace-dump")
       "xenia-cpu-backend-x64",
     })
 
-  filter("platforms:Linux")
+  filter("platforms:Linux-*")
     links({
       "X11",
       "xcb",

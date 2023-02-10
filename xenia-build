@@ -779,6 +779,9 @@ class BaseBuildCommand(Command):
             '--config', choices=['checked', 'debug', 'release'], default='debug',
             type=str.lower, help='Chooses the build configuration.')
         self.parser.add_argument(
+            '--arch', choices=['x86_64', 'arm64'], default='x86_64',
+            type=str.lower, help='Chooses the target architecture')
+        self.parser.add_argument(
             '--target', action='append', default=[],
             help='Builds only the given target(s).')
         self.parser.add_argument(
@@ -841,7 +844,7 @@ class BaseBuildCommand(Command):
                 'make',
                 '-j' if threads == 0 else '-j%d' % threads,
                 '-Cbuild/',
-                'config=%s_linux' % (args['config']),
+                'config=%s_linux-%s' % (args['config'], args['arch']),
             ] + pass_args + args['target'], shell=False, env=dict(os.environ))
         print('')
         if result != 0:

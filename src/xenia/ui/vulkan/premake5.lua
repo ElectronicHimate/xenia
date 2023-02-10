@@ -43,7 +43,7 @@ project("xenia-ui-window-vulkan-demo")
     project_root,
   })
 
-  filter("platforms:Linux")
+  filter("platforms:Linux-*")
     links({
       "X11",
       "xcb",

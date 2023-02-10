@@ -35,6 +35,8 @@ symbols("On")
 if ARCH ~= "ppc64" then
   filter("architecture:x86_64")
     vectorextensions("AVX")
+  filter("architecture:ARM64")
+    vectorextensions("NEON")
   filter({})
 end
 
@@ -58,7 +60,7 @@ filter({"configurations:Checked", "platforms:Windows"})
   buildoptions({
     "/RTCsu",           -- Full Run-Time Checks.
   })
-filter({"configurations:Checked", "platforms:Linux"})
+filter({"configurations:Checked", "platforms:Linux-*"})
   defines({
     "_GLIBCXX_DEBUG",   -- libstdc++ debug mode
   })
@@ -70,7 +72,7 @@ filter("configurations:Debug")
     "DEBUG",
     "_NO_DEBUG_HEAP=1",
   })
-filter({"configurations:Debug", "platforms:Linux"})
+filter({"configurations:Debug", "platforms:Linux-*"})
   defines({
     "_GLIBCXX_DEBUG",   -- make dbg symbols work on some distros
   })
@@ -92,7 +94,7 @@ filter("configurations:Release")
   -- (especially anything that may affect vertex position invariance) and CPU
   -- (such as constant propagation) emulation as predictable as possible,
   -- including handling of specials since games make assumptions about them.
-filter("platforms:Linux")
+filter("platforms:Linux-*")
   system("linux")
   toolset("clang")
   buildoptions({
@@ -107,15 +109,15 @@ filter("platforms:Linux")
     "rt",
   })
 
-filter({"platforms:Linux", "kind:*App"})
+filter({"platforms:Linux-*", "kind:*App"})
   linkgroups("On")
 
-filter({"platforms:Linux", "language:C++", "toolset:gcc"})
+filter({"platforms:Linux-*", "language:C++", "toolset:gcc"})
   disablewarnings({
     "unused-result"
   })
 
-filter({"platforms:Linux", "toolset:gcc"})
+filter({"platforms:Linux-*", "toolset:gcc"})
   if ARCH == "ppc64" then
     buildoptions({
       "-m32",
@@ -127,11 +129,20 @@ filter({"platforms:Linux", "toolset:gcc"})
     })
   end
 
-filter({"platforms:Linux", "language:C++", "toolset:clang"})
+filter({"platforms:Linux-x86_64", "language:C++", "toolset:clang"})
+  buildoptions({
+    "--target=x86_64-linux-gnu"
+  })
+filter({"platforms:Linux-ARM64", "language:C++", "toolset:clang"})
+  buildoptions({
+    "--target=aarch64-linux-gnu"
+  })
+
+filter({"platforms:Linux-*", "language:C++", "toolset:clang"})
   disablewarnings({
     "deprecated-register"
   })
-filter({"platforms:Linux", "language:C++", "toolset:clang", "files:*.cc or *.cpp"})
+filter({"platforms:Linux-*", "language:C++", "toolset:clang", "files:*.cc or *.cpp"})
   buildoptions({
     "-stdlib=libstdc++",
   })
@@ -219,15 +230,21 @@ workspace("xenia")
       architecture("x86_64")
     filter({})
   else
-    architecture("x86_64")
     if os.istarget("linux") then
-      platforms({"Linux"})
+    platforms({"Linux-ARM64", "Linux-x86_64"})
+    filter("platforms:Linux-ARM64")
+      architecture("ARM64")
+    filter("platforms:Linux-x86_64")
+      architecture("x86_64")
+    filter({})
     elseif os.istarget("macosx") then
+	    architecture("x86_64")
       platforms({"Mac"})
       xcodebuildsettings({           
         ["ARCHS"] = "x86_64"
       })
     elseif os.istarget("windows") then
+      architecture("x86_64")
       platforms({"Windows"})
       -- 10.0.15063.0: ID3D12GraphicsCommandList1::SetSamplePositions.
       -- 10.0.19041.0: D3D12_HEAP_FLAG_CREATE_NOT_ZEROED.
@@ -284,7 +301,11 @@ workspace("xenia")
   include("src/xenia/apu/nop")
   include("src/xenia/base")
   include("src/xenia/cpu")
-  include("src/xenia/cpu/backend/x64")
+
+  filter("architecture:x86_64")
+    include("src/xenia/cpu/backend/x64")
+  filter({})
+
   include("src/xenia/debug/ui")
   include("src/xenia/gpu")
   include("src/xenia/gpu/null")

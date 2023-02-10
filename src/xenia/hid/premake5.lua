@@ -45,7 +45,7 @@ project("xenia-hid-demo")
       "xenia-hid-sdl",
     })
 
-  filter("platforms:Linux")
+  filter("platforms:Linux-*")
     links({
       "SDL2",
       "X11",
