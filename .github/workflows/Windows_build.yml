@@ -9,11 +9,9 @@ on:
       - '.gitignore'
       - '.gdbinit'
       - '.github/*'
-      - '.github/workflows/Linux_build.yml'
       - '.github/*_TEMPLATE/**'
       - '*.md'
       - '*.yml'
-      - '*.txt'
       - 'docs/**'
       - 'src/**/*_posix.*'
       - 'src/**/*_linux.*'
@@ -31,11 +29,9 @@ on:
       - '.gitignore'
       - '.gdbinit'
       - '.github/*'
-      - '.github/workflows/Linux_build.yml'
       - '.github/*_TEMPLATE/**'
       - '*.md'
       - '*.yml'
-      - '*.txt'
       - 'docs/**'
       - 'src/**/*_posix.*'
       - 'src/**/*_linux.*'
@@ -50,27 +46,22 @@ on:
 jobs:
   lint:
     name: Lint
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
       - name: Check Clang-Format Version
         run: clang-format --version
       - name: Lint
         run: .\xb lint --all
 
   build-windows:
-    name: Build (Windows, VS${{ matrix.vsver }}, ${{ matrix.configuration }}) #  runner.os can't be used here
+    name: Build (Windows) #  runner.os can't be used here
+    runs-on: windows-2022
     needs: lint
-    strategy:
-      fail-fast: false
-      matrix:
-        vsver: [2022]
-        configuration: [Release, Debug, Checked]
-    runs-on: windows-${{ matrix.vsver }}
     env:
       POWERSHELL_TELEMETRY_OPTOUT: 1
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup
@@ -78,35 +69,25 @@ jobs:
       - name: Build
         run: .\xb build --config=Release --target=src\xenia-app
       - name: Prepare artifacts
-        if: matrix.configuration == 'Release'
-        id: prepare_artifacts
         run: |
           robocopy . build\bin\${{ runner.os }}\Release                                                                LICENSE /r:0 /w:0
           robocopy   build\bin\${{ runner.os }}\Release artifacts\xenia_canary   xenia_canary.exe   xenia_canary.pdb   LICENSE /r:0 /w:0
           If ($LastExitCode -le 7) { echo "LastExitCode = $LastExitCode";$LastExitCode = 0 }
       - name: Upload xenia canary artifacts
-        if: steps.prepare_artifacts.outcome == 'success'
-        id: upload_artifacts
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@v4
         with:
-          name: xenia_canary_vs${{ matrix.vsver }}
+          name: xenia_canary
           path: artifacts\xenia_canary
           if-no-files-found: error
       - name: Create release
         if: |
           github.repository == 'xenia-canary/xenia-canary' &&
           github.event.action != 'pull_request' &&
-          github.ref == 'refs/heads/canary_experimental' &&
-          steps.upload_artifacts.outcome == 'success'
+          contains(github.ref, 'refs/heads/canary') &&
+          github.ref != 'refs/heads/canary_base'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # REMOVE THIS IF UNNEEDED v
-          if [ ${{ matrix.configuration }} != Release ]; then
-            echo "::error::Can only create release for Release build"
-            exit 1
-          fi
-          # REMOVE THIS IF UNNEEDED ^
           $asset="xenia_canary.zip"
           rm -recurse -force artifacts\xenia_canary\*.pdb # Ideally this would use xr, but I can't get it to work
           7z a $asset .\artifacts\xenia_canary\*
