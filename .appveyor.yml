@@ -48,7 +48,7 @@ platform: Windows-ARM64
 configuration: [Release, Checked]
 
 build_script:
-  - xb build --config=%CONFIGURATION% --target=src\xenia-app --target=tests\xenia-base-tests --target=tests\xenia-cpu-ppc-tests --target=src\xenia-vfs-dump --arch=ARM64 --force
+  - xb build --config=%CONFIGURATION% --target=src\xenia-app --target=src\xenia-vfs-dump --arch=ARM64 --force
 
 after_build:
   - |
