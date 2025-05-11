@@ -44,6 +44,7 @@ on:
   workflow_dispatch:
 
 jobs:
+runs-on: windows-2022
   install:
   - |
     vcpkg integrate remove
@@ -55,35 +56,3 @@ configuration: [Release, Checked]
 
 build_script:
   - xb build --config=%CONFIGURATION% --target=src\xenia-app --target=tests\xenia-base-tests --target=tests\xenia-cpu-ppc-tests --target=src\xenia-vfs-dump
-
-  - name: Upload xenia canary artifacts
-    uses: actions/upload-artifact@v4
-        with:
-          name: xenia_canary
-          path: artifacts\xenia_canary
-          if-no-files-found: error
-      - name: Create release
-        if: |
-          github.repository == 'xenia-canary/xenia-canary' &&
-          github.event.action != 'pull_request' &&
-          contains(github.ref, 'refs/heads/canary') &&
-          github.ref != 'refs/heads/canary_base'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $asset="xenia_canary.zip"
-          rm -recurse -force artifacts\xenia_canary\*.pdb # Ideally this would use xr, but I can't get it to work
-          7z a $asset .\artifacts\xenia_canary\*
-          If ($(Get-Item $asset).length -le 100000) {
-            Throw "Error: Archive $asset too small!"
-          }
-          $tag=$env:GITHUB_SHA.SubString(0,7)
-          $branch=$($env:GITHUB_REF -replace 'refs/heads/')
-          $title="${tag}_$branch"
-          gh release create $tag $asset --target $env:GITHUB_SHA -t $title
-          # Remove canary_ to prevent conflicts from tag
-          $tag=$($branch -replace 'canary_')
-          gh release delete $tag -y
-          git push --delete origin $tag
-          git tag -d $tag
-          gh release create $tag $asset --target $env:GITHUB_SHA -t $branch
