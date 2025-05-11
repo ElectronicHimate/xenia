@@ -58,6 +58,12 @@ LPSYMFUNCTIONTABLEACCESS64 sym_function_table_access_64_ = nullptr;
 LPSYMGETMODULEBASE64 sym_get_module_base_64_ = nullptr;
 LPSYMGETSYMFROMADDR64 sym_get_sym_from_addr_64_ = nullptr;
 
+#if XE_ARCH_AMD64
+static const DWORD kMachineType = IMAGE_FILE_MACHINE_AMD64;
+#elif XE_ARCH_ARM64
+static const DWORD kMachineType = IMAGE_FILE_MACHINE_ARM64;
+#endif
+
 namespace xe {
 namespace cpu {
 
@@ -235,8 +241,8 @@ class Win32StackWalker : public StackWalker {
     // not.
     size_t frame_index = 0;
     while (frame_index < frame_count &&
-           stack_walk_64_(IMAGE_FILE_MACHINE_AMD64, GetCurrentProcess(),
-                          thread_handle, &stack_frame, &thread_context, nullptr,
+           stack_walk_64_(kMachineType, GetCurrentProcess(), thread_handle,
+                          &stack_frame, &thread_context, nullptr,
                           XSymFunctionTableAccess64, XSymGetModuleBase64,
                           nullptr) == TRUE) {
       if (frame_index >= frame_offset) {
@@ -267,7 +273,7 @@ class Win32StackWalker : public StackWalker {
         if (function) {
           frame.guest_symbol.function = function;
           // Figure out where in guest code we are by looking up the
-          // displacement in x64 from the JIT'ed code start to the PC.
+          // displacement in bytes from the JIT'ed code start to the PC.
           if (function->is_guest()) {
             auto guest_function = static_cast<GuestFunction*>(function);
             // Adjust the host PC by -1 so that we will go back into whatever
