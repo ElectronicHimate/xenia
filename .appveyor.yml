@@ -43,7 +43,7 @@ install:
     vcpkg integrate remove
     xb setup
 
-platform: Windows
+platform: Windows-ARM64
 
 configuration: [Release, Checked]
 
