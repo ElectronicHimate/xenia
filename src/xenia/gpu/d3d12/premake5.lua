@@ -1,6 +1,11 @@
 project_root = "../../../.."
 include(project_root.."/tools/build")
 
+  filter("architecture:ARM64")
+    links({
+      "xenia-cpu-backend-a64",
+    })
+
 group("src")
 project("xenia-gpu-d3d12")
   uuid("c057eae4-e7bb-4113-9a69-1fe07b735c49")
@@ -73,6 +78,11 @@ if enableMiscSubprojects then
         "xenia-cpu-backend-x64",
       })
 
+  filter("architecture:ARM64")
+    links({
+      "xenia-cpu-backend-a64",
+    })
+
   group("src")
   project("xenia-gpu-d3d12-trace-dump")
     uuid("686b859c-0046-44c4-a02c-41fc3fb75698")
@@ -125,4 +135,10 @@ if enableMiscSubprojects then
       links({
         "xenia-cpu-backend-x64",
       })
+
+    filter("architecture:ARM64")
+      links({
+        "xenia-cpu-backend-a64",
+     })
+
 end

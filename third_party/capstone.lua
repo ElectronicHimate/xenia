@@ -4,10 +4,7 @@ project("capstone")
   kind("StaticLib")
   language("C")
   defines({
-    "CAPSTONE_X86_ATT_DISABLE",
     "CAPSTONE_DIET_NO",
-    "CAPSTONE_X86_REDUCE_NO",
-    "CAPSTONE_HAS_X86",
     "CAPSTONE_USE_SYS_DYN_MEM",
     "_LIB",
   })
@@ -17,6 +14,33 @@ project("capstone")
 --    })
 --  filter {}
 
+  filter("architecture:x86_64")
+    defines({
+      "CAPSTONE_HAS_X86",
+      "CAPSTONE_X86_ATT_DISABLE",
+      "CAPSTONE_X86_REDUCE_NO",
+    })
+    files({
+      "capstone/arch/X86/*.c",
+      "capstone/arch/X86/*.h",
+      "capstone/arch/X86/*.inc",
+    })
+    force_compile_as_c({
+      "capstone/arch/X86/**.c",
+    })
+  filter("architecture:ARM64")
+    defines({
+      "CAPSTONE_HAS_ARM64",
+    })
+    files({
+      "capstone/arch/AArch64/*.c",
+      "capstone/arch/AArch64/*.h",
+      "capstone/arch/AArch64/*.inc",
+    })
+    force_compile_as_c({
+      "capstone/arch/AArch64/**.c",
+    })
+  filter({})
   includedirs({
     "capstone",
     "capstone/include",
@@ -40,12 +64,7 @@ project("capstone")
     "capstone/utils.h",
     "capstone/Mapping.c",
     "capstone/Mapping.h",
-
-    "capstone/arch/X86/*.c",
-    "capstone/arch/X86/*.h",
-    "capstone/arch/X86/*.inc",
   })
   force_compile_as_c({
     "capstone/**.c",
-    "capstone/arch/X86/**.c",
   })

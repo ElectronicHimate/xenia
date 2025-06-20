@@ -33,6 +33,7 @@ project("xenia-app")
     "libavcodec",
     "libavutil",
     "mspack",
+    "SDL2",
     "snappy",
     "xxhash",
   })
@@ -75,13 +76,18 @@ project("xenia-app")
       "xenia-cpu-backend-x64",
     })
 
+  filter("architecture:ARM64")
+    links({
+      "xenia-cpu-backend-a64",
+    })
+
   -- TODO(Triang3l): The emulator itself on Android.
   filter("platforms:not Android-*")
     files({
       "xenia_main.cc",
     })
 
-  filter("platforms:Windows")
+  filter("platforms:Windows-*")
     files({
       "main_resources.rc",
     })
@@ -107,7 +113,7 @@ project("xenia-app")
       "SDL2",
     })
 
-  filter("platforms:Windows")
+  filter("platforms:Windows-*")
     links({
       "xenia-apu-xaudio2",
       "xenia-gpu-d3d12",
@@ -117,14 +123,14 @@ project("xenia-app")
     })
 
   if enableMiscSubprojects then
-    filter({"platforms:Windows", SINGLE_LIBRARY_FILTER})
+    filter({"platforms:Windows-*", SINGLE_LIBRARY_FILTER})
       links({
         "xenia-gpu-d3d12-trace-viewer",
         "xenia-ui-window-d3d12-demo",
       })
   end
 
-  filter("platforms:Windows")
+  filter("platforms:Windows-*")
     -- Only create the .user file if it doesn't already exist.
     local user_file = project_root.."/build/xenia-app.vcxproj.user"
     if not os.isfile(user_file) then

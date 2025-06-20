@@ -32,6 +32,8 @@
 
 #if XE_ARCH_AMD64
 #include <xmmintrin.h>
+#elif XE_ARCH_ARM64
+#include <arm64_neon.h>
 #endif
 
 namespace xe {
@@ -148,10 +150,17 @@ constexpr inline uint32_t bit_count(T v) {
 }
 #else
 #if XE_COMPILER_MSVC || XE_COMPILER_INTEL
+#if XE_ARCH_AMD64
 inline uint32_t bit_count(uint32_t v) { return __popcnt(v); }
 inline uint32_t bit_count(uint64_t v) {
   return static_cast<uint32_t>(__popcnt64(v));
 }
+#elif XE_ARCH_ARM64
+inline uint32_t bit_count(uint32_t v) { return _CountOneBits(v); }
+inline uint32_t bit_count(uint64_t v) {
+  return static_cast<uint32_t>(_CountOneBits64(v));
+}
+#endif
 #elif XE_COMPILER_GCC || XE_COMPILER_CLANG
 static_assert(sizeof(unsigned int) == sizeof(uint32_t));
 static_assert(sizeof(unsigned long long) == sizeof(uint64_t));
@@ -270,6 +279,24 @@ inline uint8_t tzcnt(uint32_t v) {
 }
 inline uint8_t tzcnt(uint64_t v) {
   return v == 0 ? 64 : static_cast<uint8_t>(__builtin_ctzll(v));
+}
+#elif XE_ARCH_ARM64
+// Utilities for NEON values.
+template <int N>
+float m128_f32(const float32x4_t& v) {
+  return vgetq_lane_f32(v, N);
+}
+template <int N>
+int32_t m128_i32(const int32x4_t& v) {
+  return vgetq_lane_s32(v, N);
+}
+template <int N>
+double m128_f64(const float64x2_t& v) {
+  return vgetq_lane_f64(v, N);
+}
+template <int N>
+int64_t m128_i64(const int64x2_t& v) {
+  return vgetq_lane_s64(v, N);
 }
 #endif
 inline uint8_t lzcnt(int8_t v) { return lzcnt(static_cast<uint8_t>(v)); }
