@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_sequences.h"
 
 #include <algorithm>
@@ -1205,3 +1207,5 @@ EMITTER_OPCODE_TABLE(OPCODE_MEMSET, MEMSET_I64_I8_I64);
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif

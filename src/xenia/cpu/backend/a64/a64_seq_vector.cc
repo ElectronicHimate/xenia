@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_sequences.h"
 #include "xenia/cpu/backend/a64/a64_util.h"
 
@@ -2168,3 +2170,5 @@ EMITTER_OPCODE_TABLE(OPCODE_UNPACK, UNPACK);
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif

@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_backend.h"
 
 #include <cstddef>
@@ -733,3 +735,5 @@ void A64ThunkEmitter::EmitLoadNonvolatileRegs() {
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif

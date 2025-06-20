@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_emitter.h"
 #include "xenia/cpu/backend/a64/a64_util.h"
 
@@ -993,3 +995,5 @@ uintptr_t A64Emitter::StashConstantV(int index, const vec128_t& v) {
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif

@@ -210,6 +210,7 @@ filter("platforms:Windows-*")
     "/ignore:4006",  -- Ignores complaints about empty obj files.
     "/ignore:4221",
   })
+  filter("platforms:Windows-*")
   links({
     "ntdll",
     "wsock32",

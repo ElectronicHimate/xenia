@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_sequences.h"
 
 #include <algorithm>
@@ -549,3 +551,5 @@ EMITTER_OPCODE_TABLE(OPCODE_BRANCH_FALSE, BRANCH_FALSE_I8, BRANCH_FALSE_I16,
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif

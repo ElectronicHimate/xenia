@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_tracers.h"
 
 #include <cinttypes>
@@ -223,3 +225,5 @@ void TraceMemset(void* raw_context, uint32_t address, uint8_t value,
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif

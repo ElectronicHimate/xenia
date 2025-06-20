@@ -255,6 +255,7 @@ inline uint8_t tzcnt(uint64_t v) {
 }
 
 #else  // XE_PLATFORM_WIN32
+#if XE_ARCH_AMD64
 inline uint8_t lzcnt(uint8_t v) {
   return v == 0 ? 8 : static_cast<uint8_t>(__builtin_clz(v) - 24);
 }
@@ -298,6 +299,7 @@ template <int N>
 int64_t m128_i64(const int64x2_t& v) {
   return vgetq_lane_s64(v, N);
 }
+#endif
 #endif
 inline uint8_t lzcnt(int8_t v) { return lzcnt(static_cast<uint8_t>(v)); }
 inline uint8_t lzcnt(int16_t v) { return lzcnt(static_cast<uint16_t>(v)); }

@@ -22,6 +22,8 @@
 // load into xmm register:
 // [0F 0E 0D 0C] [0B 0A 09 08] [07 06 05 04] [03 02 01 00] (w, z, y, x)
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_sequences.h"
 
 #include <algorithm>
@@ -2786,3 +2788,5 @@ bool SelectSequence(A64Emitter* e, const Instr* i, const Instr** new_tail) {
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif

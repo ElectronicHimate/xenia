@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_function.h"
 
 #include "xenia/cpu/backend/a64/a64_backend.h"
@@ -43,3 +45,5 @@ bool A64Function::CallImpl(ThreadState* thread_state, uint32_t return_address) {
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif

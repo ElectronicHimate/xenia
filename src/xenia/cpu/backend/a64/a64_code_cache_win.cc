@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#ifdef XE_ARCH_ARM64
+
 #include "xenia/cpu/backend/a64/a64_code_cache.h"
 
 #include <cstdlib>
@@ -317,3 +319,5 @@ void* Win32A64CodeCache::LookupUnwindInfo(uint64_t host_pc) {
 }  // namespace backend
 }  // namespace cpu
 }  // namespace xe
+
+#endif
