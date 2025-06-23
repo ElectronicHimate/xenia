@@ -4,11 +4,7 @@ include(project_root.."/tools/build")
 group("src")
 project("xenia-cpu-backend-x64")
   uuid("7d8d5dce-4696-4197-952a-09506f725afe")
-  filter("architecture:x86_64")
-    kind("StaticLib")
-  filter("architecture:not x86_64")
-    kind("None")
-  filter({})
+  kind("StaticLib")
   language("C++")
   links({
     "capstone",

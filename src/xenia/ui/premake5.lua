@@ -25,7 +25,7 @@ project("xenia-ui")
       "winmm",
     })
 
-  filter("platforms:Linux")
+  filter("platforms:Linux-*")
     links({
       "xcb",
       "X11",

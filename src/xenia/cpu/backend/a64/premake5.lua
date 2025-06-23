@@ -5,7 +5,6 @@ group("src")
 project("xenia-cpu-backend-a64")
   uuid("495f3f3e-f5e8-489a-bd0f-289d0495bc08")
   kind("StaticLib")
-  filter({})
   language("C++")
   cppdialect("C++20")
   links({
@@ -27,3 +26,4 @@ project("xenia-cpu-backend-a64")
       "4146", -- unary minus operator applied to unsigned type, result still unsigned
       "4267" -- 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
   })
+  filter({})

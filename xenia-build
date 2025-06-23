@@ -804,7 +804,7 @@ class BaseBuildCommand(Command):
             '--target', action='append', default=[],
             help='Builds only the given target(s).')
         self.parser.add_argument(
-            '--arch', default='x86_64', help='Builds only the given architecture')
+            '--arch', choices=['x86_64', 'ARM64'], default='x86_64', help='Builds only the given architecture')
         self.parser.add_argument(
             '--force', action='store_true',
             help='Forces a full rebuild.')
@@ -865,8 +865,8 @@ class BaseBuildCommand(Command):
             result = subprocess.call([
                 'cmake',
                 '-Sbuild',
-                '-Bbuild/build_%s' % (args['config']),
-                '-DCMAKE_BUILD_TYPE=%s' % (args['config'].title()),
+                '-Bbuild/build_%s-%s' % (args['arch'], args['config']),
+                '-DCMAKE_BUILD_TYPE=Linux-%s-%s' % (args['arch'] , args['config'].title()),
                 '-DCMAKE_C_COMPILER=' + os.environ.get('CC', 'clang'),
                 '-DCMAKE_CXX_COMPILER=' + os.environ.get('CXX', 'clang++'),
                 '-GNinja'
@@ -877,7 +877,7 @@ class BaseBuildCommand(Command):
                 return result
             result = subprocess.call([
                     'ninja',
-                    '-C./build/build_%s' % (args['config']),
+                    '-C./build/build_%s-%s' % (args['arch'], args['config']),
                     '-j' if threads == 0 else '-j%d' % threads,
                 ] + pass_args, shell=False, env=dict(os.environ))
             if result != 0:

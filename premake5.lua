@@ -66,7 +66,7 @@ filter({"configurations:Checked", "platforms:Windows-*"})
     "/RTCsu",           -- Full Run-Time Checks.
   })
 
-filter({"configurations:Checked", "platforms:Linux"})
+filter({"configurations:Checked", "platforms:Linux-*"})
   defines({
     "_GLIBCXX_DEBUG",   -- libstdc++ debug mode
   })
@@ -79,7 +79,7 @@ filter("configurations:Debug")
     "_NO_DEBUG_HEAP=1",
   })
 
-filter({"configurations:Debug", "platforms:Linux"})
+filter({"configurations:Debug", "platforms:Linux-*"})
   defines({
     "_GLIBCXX_DEBUG",   -- make dbg symbols work on some distros
   })
@@ -112,13 +112,22 @@ filter({"configurations:Release", "platforms:Windows"})
     "/Ob3",
   })
 
-filter("platforms:Linux")
+filter("platforms:Linux-*")
   system("linux")
   toolset("clang")
-  vectorextensions("AVX2")
-  buildoptions({
+  filter("architecture:x86_64")
+    vectorextensions("AVX2")
+    buildoptions({
+      "--target=x86_64-linux-gnu"
     -- "-mlzcnt",  -- (don't) Assume lzcnt is supported.
-  })
+    })
+  filter({})
+  filter("architecture:ARM64")
+    vectorextensions("NEON")
+    buildoptions({
+      "--target=aarch64-linux-gnu",
+    })
+  filter({})
   pkg_config.all("gtk+-x11-3.0")
   links({
     "stdc++fs",
@@ -128,10 +137,10 @@ filter("platforms:Linux")
     "rt",
   })
 
-filter({"platforms:Linux", "kind:*App"})
+filter({"platforms:Linux-*", "kind:*App"})
   linkgroups("On")
 
-filter({"platforms:Linux", "language:C++", "toolset:gcc"})
+filter({"platforms:Linux-*", "language:C++", "toolset:gcc"})
   disablewarnings({
     "unused-result",
     "deprecated-volatile",
@@ -139,7 +148,7 @@ filter({"platforms:Linux", "language:C++", "toolset:gcc"})
     "deprecated-enum-enum-conversion",
   })
 
-filter({"platforms:Linux", "toolset:gcc"})
+filter({"platforms:Linux-*", "toolset:gcc"})
   if ARCH == "ppc64" then
     buildoptions({
       "-m32",
@@ -151,7 +160,7 @@ filter({"platforms:Linux", "toolset:gcc"})
     })
   end
 
-filter({"platforms:Linux", "language:C++", "toolset:clang"})
+filter({"platforms:Linux-*", "language:C++", "toolset:clang"})
   disablewarnings({
     "deprecated-register",
     "deprecated-volatile",
@@ -159,7 +168,7 @@ filter({"platforms:Linux", "language:C++", "toolset:clang"})
     "deprecated-enum-enum-conversion",
     "attributes",
   })
-filter({"platforms:Linux", "language:C++", "toolset:clang", "files:*.cc or *.cpp"})
+filter({"platforms:Linux-*", "language:C++", "toolset:clang", "files:*.cc or *.cpp"})
   buildoptions({
     "-stdlib=libstdc++",
     "-std=c++20", -- clang doesn't respect cppdialect(?)
@@ -244,31 +253,33 @@ workspace("xenia")
     filter("platforms:Android-x86_64")
       architecture("x86_64")
     filter({})
-  else
-    architecture("x86_64")
-    if os.istarget("linux") then
-      platforms({"Linux"})
-    elseif os.istarget("macosx") then
-      platforms({"Mac"})
-      xcodebuildsettings({
-        ["ARCHS"] = "x86_64"
-      })
-    elseif os.istarget("windows") then
-      platforms({"Windows-ARM64", "Windows-x86_64"})
-      filter("platforms:Windows-ARM64")
-        architecture("ARM64")
-      filter("platforms:Windows-x86_64")
-        architecture("x86_64")
-      filter({})
-      -- 10.0.15063.0: ID3D12GraphicsCommandList1::SetSamplePositions.
-      -- 10.0.19041.0: D3D12_HEAP_FLAG_CREATE_NOT_ZEROED.
-      -- 10.0.22000.0: DWMWA_WINDOW_CORNER_PREFERENCE.
-      filter("action:vs2017")
-        systemversion("10.0.22000.0")
-      filter("action:vs2019")
-        systemversion("10.0")
-      filter({})
-    end
+  elseif os.istarget("linux") then
+    platforms({"Linux-ARM64", "Linux-x86_64"})
+    filter("platforms:Linux-ARM64")
+      architecture("ARM64")
+    filter("platforms:Linux-x86_64")
+      architecture("x86_64")
+    filter({})
+  elseif os.istarget("macosx") then
+    platforms({"Mac"})
+    xcodebuildsettings({
+      ["ARCHS"] = "x86_64"
+    })
+  elseif os.istarget("windows") then
+    platforms({"Windows-ARM64", "Windows-x86_64"})
+    filter("platforms:Windows-ARM64")
+      architecture("ARM64")
+    filter("platforms:Windows-x86_64")
+      architecture("x86_64")
+    filter({})
+    -- 10.0.15063.0: ID3D12GraphicsCommandList1::SetSamplePositions.
+    -- 10.0.19041.0: D3D12_HEAP_FLAG_CREATE_NOT_ZEROED.
+    -- 10.0.22000.0: DWMWA_WINDOW_CORNER_PREFERENCE.
+    filter("action:vs2017")
+      systemversion("10.0.22000.0")
+    filter("action:vs2019")
+      systemversion("10.0")
+    filter({})
   end
   configurations({"Checked", "Debug", "Release"})
 

@@ -32,7 +32,7 @@ project("libusb")
       "libusb/libusb/os/windows_winusb.h"
     })
 
-  filter({"platforms:Linux"})
+  filter({"platforms:Linux-*"})
     files({
       "libusb/libusb/config.h",
       "libusb/libusb/os/events_posix.c",

@@ -105,7 +105,7 @@ project("xenia-app")
       "xenia-hid-sdl",
     })
 
-  filter("platforms:Linux")
+  filter("platforms:Linux-*")
     links({
       "X11",
       "xcb",

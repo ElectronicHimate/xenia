@@ -76,7 +76,7 @@ if enableMiscSubprojects then
        "xenia-cpu-backend-a64",
      })
 
-    filter("platforms:Linux")
+    filter("platforms:Linux-*")
       links({
         "X11",
         "xcb",
@@ -146,7 +146,7 @@ if enableMiscSubprojects then
        "xenia-cpu-backend-a64",
      })
 
-    filter("platforms:Linux")
+    filter("platforms:Linux-*")
       links({
         "X11",
         "xcb",

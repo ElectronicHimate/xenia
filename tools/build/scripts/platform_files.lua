@@ -25,14 +25,14 @@ local function match_platform_files(base_path, base_match)
       base_path.."/"..base_match.."_win.h",
       base_path.."/"..base_match.."_win.cc",
     })
-  filter("platforms:Linux or Android-*")
+  filter("platforms:Linux-* or Android-*")
     files({
       base_path.."/"..base_match.."_posix.h",
       base_path.."/"..base_match.."_posix.cc",
       base_path.."/"..base_match.."_linux.h",
       base_path.."/"..base_match.."_linux.cc",
     })
-  filter("platforms:Linux")
+  filter("platforms:Linux-*")
     files({
       base_path.."/"..base_match.."_gnulinux.h",
       base_path.."/"..base_match.."_gnulinux.cc",
