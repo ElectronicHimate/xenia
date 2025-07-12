@@ -50,7 +50,6 @@ on:
 jobs:
   build:
     name: Build
-    needs: lint
     runs-on: windows-11-arm
     env:
       POWERSHELL_TELEMETRY_OPTOUT: 1
