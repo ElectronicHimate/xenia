@@ -55,6 +55,8 @@ jobs:
       POWERSHELL_TELEMETRY_OPTOUT: 1
     steps:
       - uses: actions/checkout@main
+      - name: Format
+        run: .\xb format
       - name: Lint
         run: .\xb lint --all
 
@@ -68,8 +70,6 @@ jobs:
       - uses: actions/checkout@main
         with:
           fetch-depth: 0
-      - name: Format
-        run: .\xb format
       - name: Setup
         run: .\xb setup
       - name: Build
