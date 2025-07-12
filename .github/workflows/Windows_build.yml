@@ -64,13 +64,13 @@ jobs:
       - name: Prepare artifacts
         id: prepare_artifacts
         run: |
-          foreach ($file in 'build\bin\Windows\Checked\xenia_canary.exe','build\bin\Windows\Checked\xenia_canary.pdb') {
+          foreach ($file in 'build\bin\**\xenia_canary.exe','build\bin\**\xenia_canary.pdb') {
             if ((get-item $file).Length -le 100000) {
               echo "::error::$file is too small."
             }
           }
-          robocopy . build\bin\Windows\Checked                                                                LICENSE /r:0 /w:0
-          robocopy   build\bin\Windows\Checked artifacts\xenia_canary   xenia_canary.exe   xenia_canary.pdb   LICENSE /r:0 /w:0
+          robocopy . build\bin\**                                                                LICENSE /r:0 /w:0
+          robocopy   build\bin\** artifacts\xenia_canary   xenia_canary.exe   xenia_canary.pdb   LICENSE /r:0 /w:0
       - name: Upload xenia canary artifacts
         if: steps.prepare_artifacts.outcome == 'success'
         uses: actions/upload-artifact@main
