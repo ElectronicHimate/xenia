@@ -50,7 +50,7 @@ on:
 jobs:
   lint:
     name: Lint
-    runs-on: windows-11-arm
+    runs-on: windows-latest-arm
     env:
       POWERSHELL_TELEMETRY_OPTOUT: 1
     steps:
