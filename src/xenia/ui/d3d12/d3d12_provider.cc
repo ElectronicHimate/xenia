@@ -124,10 +124,9 @@ bool D3D12Provider::EnableIncreaseBasePriorityPrivilege() {
 
 bool D3D12Provider::Initialize() {
   // Load the core libraries.
-  library_dxgi_ = LoadLibraryW(L"dxgi.dll");
   library_d3d12_ = LoadLibraryW(L"D3D12.dll");
-  if (!library_dxgi_ || !library_d3d12_) {
-    XELOGE("Failed to load dxgi.dll or D3D12.dll");
+  if (!library_d3d12_) {
+    XELOGE("Failed to load D3D12.dll");
     return false;
   }
   bool libraries_loaded = true;
