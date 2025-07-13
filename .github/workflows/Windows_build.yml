@@ -64,7 +64,7 @@ jobs:
       - name: Prepare artifacts
         id: prepare_artifacts
         run: |
-          foreach ($file in 'build\bin\xenia_canary.exe','build\bin') {
+          foreach ($file in 'build\bin\Windows-ARM64','build\bin\Windows') {
             if ((get-item $file).Length -le 100000) {
               echo "::error::$file is too small."
             }
