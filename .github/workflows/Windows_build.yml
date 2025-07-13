@@ -70,7 +70,7 @@ jobs:
             }
           }
           robocopy . build\bin\                                                                LICENSE /r:0 /w:0
-          robocopy   build\bin\   xenia_canary.exe   xenia_canary.pdb   LICENSE /r:0 /w:0
+          robocopy   build\   xenia_canary.exe   xenia_canary.pdb   LICENSE /r:0 /w:0
       - name: Upload xenia canary artifacts
         if: steps.prepare_artifacts.outcome == 'success'
         uses: actions/upload-artifact@main
