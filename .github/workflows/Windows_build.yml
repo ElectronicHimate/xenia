@@ -76,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: xenia_canary_windows
-          path: build\bin\Windows-ARM64
+          path: build\bin\
           if-no-files-found: error
 
   create-release:
