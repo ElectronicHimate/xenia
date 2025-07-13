@@ -60,11 +60,11 @@ jobs:
       - name: Setup
         run: .\xb setup
       - name: Build
-        run: .\xb build --config=Checked --target=src\xenia-app --arch=ARM64
+        run: .\xb build --config=Release --target=src\xenia-app --arch=ARM64
       - name: Prepare artifacts
         id: prepare_artifacts
         run: |
-          foreach ($file in 'build\bin\Windows-ARM64','build\bin\Windows-ARM64\Checked') {
+          foreach ($file in 'build\bin\Windows-ARM64','build\bin\Windows-ARM64\Release') {
             if ((get-item $file).Length -le 100000) {
               echo "::error::$file is too small."
             }
