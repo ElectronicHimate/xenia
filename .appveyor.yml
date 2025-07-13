@@ -60,7 +60,6 @@ after_build:
 
 artifacts:
   - path: '*.zip'
-  - path: xenia-cpu-ppc-test.log
 
 deploy:
   - provider: Environment
