@@ -48,7 +48,7 @@ platform: Windows-ARM64
 configuration: [Release, Checked]
 
 build_script:
-  - xb build --config=%CONFIGURATION% --target=src\xenia-app --arch=ARM64 --force
+  - xb build --config=%CONFIGURATION% --target=src\xenia-app --arch=ARM64
 
 after_build:
   - |
