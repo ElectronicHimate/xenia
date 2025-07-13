@@ -22,5 +22,4 @@ project("xenia-ui")
   filter("platforms:Windows-*")
     links({
       "dwmapi",
-      "dxgi",
     })
