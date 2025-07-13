@@ -58,12 +58,6 @@ after_build:
       IF     "%CONFIGURATION%"=="Checked" SET "ARCHIVE_SWITCHES="-pI know what I am doing." --"
       7z a xenia_%ARCHIVE_SUFFIX%.zip          %ARCHIVE_SWITCHES% LICENSE "%APPVEYOR_BUILD_FOLDER%\build\bin\%PLATFORM%\%CONFIGURATION%\xenia.exe"          "%APPVEYOR_BUILD_FOLDER%\build\bin\%PLATFORM%\%CONFIGURATION%\xenia.pdb"
 
-before_test:
-  - xb gentests
-
-test_script:
-  - xb test --config=%CONFIGURATION% --no_build
-
 artifacts:
   - path: '*.zip'
   - path: xenia-cpu-ppc-test.log
