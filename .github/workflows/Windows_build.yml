@@ -70,13 +70,13 @@ jobs:
             }
           }
           robocopy . build\bin\                                                             xenia_canary.exe   xenia_canary.pdb   LICENSE /r:0 /w:0
-          robocopy   build\   xenia_canary.exe   xenia_canary.pdb   LICENSE /r:0 /w:0
+          robocopy   build\   xenia.exe   xenia.pdb   LICENSE /r:0 /w:0
       - name: Upload xenia canary artifacts
         if: steps.prepare_artifacts.outcome == 'success'
         uses: actions/upload-artifact@main
         with:
           name: xenia_canary_windows
-          path: artifacts\xenia_canary
+          path: build\bin\Windows-ARM64
           if-no-files-found: error
 
   create-release:
