@@ -27,12 +27,18 @@ namespace vulkan {
 VulkanPrimitiveProcessor::~VulkanPrimitiveProcessor() { Shutdown(true); }
 
 bool VulkanPrimitiveProcessor::Initialize() {
-  const ui::vulkan::VulkanProvider::DeviceInfo& device_info =
-      command_processor_.GetVulkanProvider().device_info();
-  if (!InitializeCommon(device_info.fullDrawIndexUint32,
-                        device_info.triangleFans, false,
-                        device_info.geometryShader, device_info.geometryShader,
-                        device_info.geometryShader)) {
+  const ui::vulkan::VulkanProvider& provider =
+      command_processor_.GetVulkanProvider();
+  const VkPhysicalDeviceFeatures& device_features = provider.device_features();
+  const VkPhysicalDevicePortabilitySubsetFeaturesKHR*
+      device_portability_subset_features =
+          provider.device_portability_subset_features();
+  if (!InitializeCommon(device_features.fullDrawIndexUint32,
+                        !device_portability_subset_features ||
+                            device_portability_subset_features->triangleFans,
+                        false, device_features.geometryShader,
+                        device_features.geometryShader,
+                        device_features.geometryShader)) {
     Shutdown();
     return false;
   }

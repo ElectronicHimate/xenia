@@ -12,7 +12,6 @@
 #include <cmath>
 
 #include "xenia/base/math.h"
-#include "xenia/base/memory.h"
 
 namespace xe {
 namespace gpu {
@@ -27,7 +26,7 @@ namespace xenos {
 float PWLGammaToLinear(float gamma) {
   // Not found in game executables, so just using the logic similar to that in
   // the Source Engine.
-  gamma = xe::saturate(gamma);
+  gamma = xe::saturate_unsigned(gamma);
   float scale, offset;
   // While the compiled code for linear to gamma conversion uses `vcmpgtfp
   // constant, value` comparison (constant > value, or value < constant), it's
@@ -68,7 +67,7 @@ float PWLGammaToLinear(float gamma) {
 }
 
 float LinearToPWLGamma(float linear) {
-  linear = xe::saturate(linear);
+  linear = xe::saturate_unsigned(linear);
   float scale, offset;
   // While the compiled code uses `vcmpgtfp constant, value` comparison
   // (constant > value, or value < constant), it's preferable to use `value >=
@@ -119,8 +118,8 @@ float Float7e3To32(uint32_t f10) {
     exponent = uint32_t(1 - int32_t(mantissa_lzcnt));
     mantissa = (mantissa << mantissa_lzcnt) & 0x7F;
   }
-  return xe::memory::Reinterpret<float>(
-      uint32_t(((exponent + 124) << 23) | (mantissa << 3)));
+  uint32_t f32 = ((exponent + 124) << 23) | (mantissa << 3);
+  return *reinterpret_cast<const float*>(&f32);
 }
 
 // Based on CFloat24 from d3dref9.dll and the 6e4 code from:
@@ -132,7 +131,7 @@ uint32_t Float32To20e4(float f32, bool round_to_nearest_even) {
     // Positive only, and not -0 or NaN.
     return 0;
   }
-  auto f32u32 = xe::memory::Reinterpret<uint32_t>(f32);
+  uint32_t f32u32 = *reinterpret_cast<const uint32_t*>(&f32);
   if (f32u32 >= 0x3FFFFFF8) {
     // Saturate.
     return 0xFFFFFF;
@@ -166,8 +165,8 @@ float Float20e4To32(uint32_t f24) {
     exponent = uint32_t(1 - int32_t(mantissa_lzcnt));
     mantissa = (mantissa << mantissa_lzcnt) & 0xFFFFF;
   }
-  return xe::memory::Reinterpret<float>(
-      uint32_t(((exponent + 112) << 23) | (mantissa << 3)));
+  uint32_t f32 = ((exponent + 112) << 23) | (mantissa << 3);
+  return *reinterpret_cast<const float*>(&f32);
 }
 
 const char* GetColorRenderTargetFormatName(ColorRenderTargetFormat format) {

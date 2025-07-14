@@ -107,11 +107,10 @@ TEST_CASE("WinSystemClock <-> XSystemClock", "[clock_cast]") {
     auto error2 = xsys.time_since_epoch() - wxsys.time_since_epoch();
     auto error3 = wsys - wxsys;
 
-    // In AppVeyor, the difference often can be as large as roughly 16ms.
-    REQUIRE(error1 < 20ms);
-    REQUIRE(error1 > -20ms);
-    REQUIRE(error2 < 20ms);
-    REQUIRE(error2 > -20ms);
+    REQUIRE(error1 < 10ms);
+    REQUIRE(error1 > -10ms);
+    REQUIRE(error2 < 10ms);
+    REQUIRE(error2 > -10ms);
     REQUIRE(error3 < duration);
     REQUIRE(error3 > -duration);
   }
