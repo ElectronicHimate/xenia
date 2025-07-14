@@ -17,7 +17,6 @@
 #include "xenia/base/logging.h"
 #include "xenia/base/math.h"
 #include "xenia/base/profiling.h"
-#include "xenia/gpu/gpu_flags.h"
 #include "xenia/gpu/texture_info.h"
 #include "xenia/gpu/texture_util.h"
 #include "xenia/gpu/vulkan/deferred_command_buffer.h"
@@ -145,17 +144,17 @@ const VulkanTextureCache::HostFormatPair
          xenos::XE_GPU_TEXTURE_SWIZZLE_RGGG,
          true},
         // k_Cr_Y1_Cb_Y0_REP
-        // VK_FORMAT_G8B8G8R8_422_UNORM (added in
+        // VK_FORMAT_G8B8G8R8_422_UNORM_KHR (added in
         // VK_KHR_sampler_ycbcr_conversion and promoted to Vulkan 1.1) is
         // optional.
-        {{kLoadShaderIndex32bpb, VK_FORMAT_G8B8G8R8_422_UNORM, true},
+        {{kLoadShaderIndex32bpb, VK_FORMAT_G8B8G8R8_422_UNORM_KHR, true},
          {kLoadShaderIndexGBGR8ToRGB8, VK_FORMAT_R8G8B8A8_SNORM},
          xenos::XE_GPU_TEXTURE_SWIZZLE_RGBB},
         // k_Y1_Cr_Y0_Cb_REP
-        // VK_FORMAT_B8G8R8G8_422_UNORM (added in
+        // VK_FORMAT_B8G8R8G8_422_UNORM_KHR (added in
         // VK_KHR_sampler_ycbcr_conversion and promoted to Vulkan 1.1) is
         // optional.
-        {{kLoadShaderIndex32bpb, VK_FORMAT_B8G8R8G8_422_UNORM, true},
+        {{kLoadShaderIndex32bpb, VK_FORMAT_B8G8R8G8_422_UNORM_KHR, true},
          {kLoadShaderIndexBGRG8ToRGB8, VK_FORMAT_R8G8B8A8_SNORM},
          xenos::XE_GPU_TEXTURE_SWIZZLE_RGBB},
         // k_16_16_EDRAM
@@ -612,8 +611,8 @@ VkImageView VulkanTextureCache::GetActiveBindingOrNullImageView(
 VulkanTextureCache::SamplerParameters VulkanTextureCache::GetSamplerParameters(
     const VulkanShader::SamplerBinding& binding) const {
   const auto& regs = register_file();
-  xenos::xe_gpu_texture_fetch_t fetch =
-      regs.GetTextureFetch(binding.fetch_constant);
+  const auto& fetch = regs.Get<xenos::xe_gpu_texture_fetch_t>(
+      XE_GPU_REG_SHADER_CONSTANT_FETCH_00_0 + binding.fetch_constant * 6);
 
   SamplerParameters parameters;
 
@@ -761,11 +760,9 @@ VkSampler VulkanTextureCache::UseSampler(SamplerParameters parameters,
   // GetSamplerParameters.
   VkSamplerCreateInfo sampler_create_info = {};
   sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-  if (provider.device_info().nonSeamlessCubeMap &&
-      cvars::non_seamless_cube_map) {
-    sampler_create_info.flags |=
-        VK_SAMPLER_CREATE_NON_SEAMLESS_CUBE_MAP_BIT_EXT;
-  }
+  // TODO(Triang3l): VK_SAMPLER_CREATE_NON_SEAMLESS_CUBE_MAP_BIT_EXT if
+  // VK_EXT_non_seamless_cube_map and the nonSeamlessCubeMap feature are
+  // supported.
   sampler_create_info.magFilter =
       parameters.mag_linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
   sampler_create_info.minFilter =
@@ -781,15 +778,15 @@ VkSampler VulkanTextureCache::UseSampler(SamplerParameters parameters,
       // kClampToEdge
       VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
       // kMirrorClampToEdge
-      VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE,
+      VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE_KHR,
       // kClampToHalfway
       VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
       // kMirrorClampToHalfway
-      VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE,
+      VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE_KHR,
       // kClampToBorder
       VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
       // kMirrorClampToBorder
-      VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE,
+      VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE_KHR,
   };
   sampler_create_info.addressModeU =
       kAddressModeMap[uint32_t(parameters.clamp_x)];
@@ -875,7 +872,8 @@ VkImageView VulkanTextureCache::RequestSwapTexture(
     uint32_t& width_scaled_out, uint32_t& height_scaled_out,
     xenos::TextureFormat& format_out) {
   const auto& regs = register_file();
-  xenos::xe_gpu_texture_fetch_t fetch = regs.GetTextureFetch(0);
+  const auto& fetch = regs.Get<xenos::xe_gpu_texture_fetch_t>(
+      XE_GPU_REG_SHADER_CONSTANT_FETCH_00_0);
   TextureKey key;
   BindingInfoFromFetchConstant(fetch, key, nullptr);
   if (!key.is_valid || key.base_page == 0 ||
@@ -940,17 +938,19 @@ uint32_t VulkanTextureCache::GetHostFormatSwizzle(TextureKey key) const {
 
 uint32_t VulkanTextureCache::GetMaxHostTextureWidthHeight(
     xenos::DataDimension dimension) const {
-  const ui::vulkan::VulkanProvider::DeviceInfo& device_info =
-      command_processor_.GetVulkanProvider().device_info();
+  const ui::vulkan::VulkanProvider& provider =
+      command_processor_.GetVulkanProvider();
+  const VkPhysicalDeviceLimits& device_limits =
+      provider.device_properties().limits;
   switch (dimension) {
     case xenos::DataDimension::k1D:
     case xenos::DataDimension::k2DOrStacked:
       // 1D and 2D are emulated as 2D arrays.
-      return device_info.maxImageDimension2D;
+      return device_limits.maxImageDimension2D;
     case xenos::DataDimension::k3D:
-      return device_info.maxImageDimension3D;
+      return device_limits.maxImageDimension3D;
     case xenos::DataDimension::kCube:
-      return device_info.maxImageDimensionCube;
+      return device_limits.maxImageDimensionCube;
     default:
       assert_unhandled_case(dimension);
       return 0;
@@ -959,15 +959,17 @@ uint32_t VulkanTextureCache::GetMaxHostTextureWidthHeight(
 
 uint32_t VulkanTextureCache::GetMaxHostTextureDepthOrArraySize(
     xenos::DataDimension dimension) const {
-  const ui::vulkan::VulkanProvider::DeviceInfo& device_info =
-      command_processor_.GetVulkanProvider().device_info();
+  const ui::vulkan::VulkanProvider& provider =
+      command_processor_.GetVulkanProvider();
+  const VkPhysicalDeviceLimits& device_limits =
+      provider.device_properties().limits;
   switch (dimension) {
     case xenos::DataDimension::k1D:
     case xenos::DataDimension::k2DOrStacked:
       // 1D and 2D are emulated as 2D arrays.
-      return device_info.maxImageArrayLayers;
+      return device_limits.maxImageArrayLayers;
     case xenos::DataDimension::k3D:
-      return device_info.maxImageDimension3D;
+      return device_limits.maxImageDimension3D;
     case xenos::DataDimension::kCube:
       // Not requesting the imageCubeArray feature, and the Xenos doesn't
       // support cube map arrays.
@@ -1047,14 +1049,14 @@ std::unique_ptr<TextureCache::Texture> VulkanTextureCache::CreateTexture(
   image_create_info.queueFamilyIndexCount = 0;
   image_create_info.pQueueFamilyIndices = nullptr;
   image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  VkImageFormatListCreateInfo image_format_list_create_info;
+  VkImageFormatListCreateInfoKHR image_format_list_create_info;
   if (formats[1] != VK_FORMAT_UNDEFINED &&
-      provider.device_info().ext_1_2_VK_KHR_image_format_list) {
+      provider.device_extensions().khr_image_format_list) {
     image_create_info_last->pNext = &image_format_list_create_info;
     image_create_info_last =
         reinterpret_cast<VkImageCreateInfo*>(&image_format_list_create_info);
     image_format_list_create_info.sType =
-        VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO;
+        VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR;
     image_format_list_create_info.pNext = nullptr;
     image_format_list_create_info.viewFormatCount = 2;
     image_format_list_create_info.pViewFormats = formats;
@@ -1633,7 +1635,11 @@ VkImageView VulkanTextureCache::VulkanTexture::GetView(bool is_signed,
 
   const ui::vulkan::VulkanProvider& provider =
       vulkan_texture_cache.command_processor_.GetVulkanProvider();
-  if (!provider.device_info().imageViewFormatSwizzle) {
+  const VkPhysicalDevicePortabilitySubsetFeaturesKHR*
+      device_portability_subset_features =
+          provider.device_portability_subset_features();
+  if (device_portability_subset_features &&
+      !device_portability_subset_features->imageViewFormatSwizzle) {
     host_swizzle = xenos::XE_GPU_TEXTURE_SWIZZLE_RGBA;
   }
   view_key.host_swizzle = host_swizzle;
@@ -1710,8 +1716,9 @@ bool VulkanTextureCache::Initialize() {
   VkPhysicalDevice physical_device = provider.physical_device();
   const ui::vulkan::VulkanProvider::DeviceFunctions& dfn = provider.dfn();
   VkDevice device = provider.device();
-  const ui::vulkan::VulkanProvider::DeviceInfo& device_info =
-      provider.device_info();
+  const VkPhysicalDevicePortabilitySubsetFeaturesKHR*
+      device_portability_subset_features =
+          provider.device_portability_subset_features();
 
   // Vulkan Memory Allocator.
 
@@ -2469,15 +2476,15 @@ bool VulkanTextureCache::Initialize() {
         null_image_memory_requirements_2d_array_cube_.size;
     null_image_memory_allocate_info.memoryTypeIndex =
         null_image_memory_type_2d_array_cube_;
-    VkMemoryDedicatedAllocateInfo null_image_memory_dedicated_allocate_info;
-    if (device_info.ext_1_1_VK_KHR_dedicated_allocation) {
+    VkMemoryDedicatedAllocateInfoKHR null_image_memory_dedicated_allocate_info;
+    if (provider.device_extensions().khr_dedicated_allocation) {
       null_image_memory_allocate_info_last->pNext =
           &null_image_memory_dedicated_allocate_info;
       null_image_memory_allocate_info_last =
           reinterpret_cast<VkMemoryAllocateInfo*>(
               &null_image_memory_dedicated_allocate_info);
       null_image_memory_dedicated_allocate_info.sType =
-          VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO;
+          VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_KHR;
       null_image_memory_dedicated_allocate_info.pNext = nullptr;
       null_image_memory_dedicated_allocate_info.image =
           null_image_2d_array_cube_;
@@ -2531,8 +2538,10 @@ bool VulkanTextureCache::Initialize() {
   // constant components instead of the real texels. The image will be cleared
   // to (0, 0, 0, 0) anyway.
   VkComponentSwizzle null_image_view_swizzle =
-      device_info.imageViewFormatSwizzle ? VK_COMPONENT_SWIZZLE_ZERO
-                                         : VK_COMPONENT_SWIZZLE_IDENTITY;
+      (!device_portability_subset_features ||
+       device_portability_subset_features->imageViewFormatSwizzle)
+          ? VK_COMPONENT_SWIZZLE_ZERO
+          : VK_COMPONENT_SWIZZLE_IDENTITY;
   null_image_view_create_info.components.r = null_image_view_swizzle;
   null_image_view_create_info.components.g = null_image_view_swizzle;
   null_image_view_create_info.components.b = null_image_view_swizzle;
@@ -2565,6 +2574,10 @@ bool VulkanTextureCache::Initialize() {
 
   // Samplers.
 
+  const VkPhysicalDeviceFeatures& device_features = provider.device_features();
+  const VkPhysicalDeviceLimits& device_limits =
+      provider.device_properties().limits;
+
   // Some MoltenVK devices have a maximum of 2048, 1024, or even 96 samplers,
   // below Vulkan's minimum requirement of 4000.
   // Assuming that the current VulkanTextureCache is the only one on this
@@ -2572,14 +2585,15 @@ bool VulkanTextureCache::Initialize() {
   // allocation slots exclusively.
   // Also leaving a few slots for use by things like overlay applications.
   sampler_max_count_ =
-      device_info.maxSamplerAllocationCount -
+      device_limits.maxSamplerAllocationCount -
       uint32_t(ui::vulkan::VulkanProvider::HostSampler::kCount) - 16;
 
-  if (device_info.samplerAnisotropy) {
+  if (device_features.samplerAnisotropy) {
     max_anisotropy_ = xenos::AnisoFilter(
         uint32_t(xenos::AnisoFilter::kMax_1_1) +
-        (31 - xe::lzcnt(uint32_t(std::min(
-                  16.0f, std::max(1.0f, device_info.maxSamplerAnisotropy))))));
+        (31 -
+         xe::lzcnt(uint32_t(std::min(
+             16.0f, std::max(1.0f, device_limits.maxSamplerAnisotropy))))));
   } else {
     max_anisotropy_ = xenos::AnisoFilter::kDisabled;
   }
@@ -2642,12 +2656,10 @@ xenos::ClampMode VulkanTextureCache::NormalizeClampMode(
   if (clamp_mode == xenos::ClampMode::kMirrorClampToEdge ||
       clamp_mode == xenos::ClampMode::kMirrorClampToHalfway ||
       clamp_mode == xenos::ClampMode::kMirrorClampToBorder) {
-    // No equivalents for anything other than kMirrorClampToEdge in Vulkan.
-    return command_processor_.GetVulkanProvider()
-                   .device_info()
-                   .samplerMirrorClampToEdge
-               ? xenos::ClampMode::kMirrorClampToEdge
-               : xenos::ClampMode::kMirroredRepeat;
+    // TODO(Triang3l): VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE_KHR if
+    // VK_KHR_sampler_mirror_clamp_to_edge (or Vulkan 1.2) and the
+    // samplerMirrorClampToEdge feature are supported.
+    return xenos::ClampMode::kMirroredRepeat;
   }
   return clamp_mode;
 }
