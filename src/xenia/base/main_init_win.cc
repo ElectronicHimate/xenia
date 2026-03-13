@@ -11,20 +11,24 @@
 
 #include <cstdlib>
 
+#if XE_ARCH_AMD64
 // Includes Windows headers, so it goes after platform_win.h.
 #include "third_party/xbyak/xbyak/xbyak_util.h"
+#endif
 
 class StartupCpuFeatureCheck {
  public:
   StartupCpuFeatureCheck() {
-    Xbyak::util::Cpu cpu;
     const char* error_message = nullptr;
+#if XE_ARCH_AMD64
+    Xbyak::util::Cpu cpu;
     if (!cpu.has(Xbyak::util::Cpu::tAVX)) {
       error_message =
           "Your CPU does not support AVX, which is required by Xenia. See "
           "the "
           "FAQ for system requirements at https://xenia.jp";
     }
+#endif
     if (error_message == nullptr) {
       return;
     } else {
