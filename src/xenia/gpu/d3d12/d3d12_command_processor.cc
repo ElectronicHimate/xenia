@@ -1636,19 +1636,6 @@ void D3D12CommandProcessor::ShutdownContext() {
 XE_FORCEINLINE
 void D3D12CommandProcessor::WriteRegisterForceinline(uint32_t index,
                                                      uint32_t value) {
-  __m128i to_rangecheck = _mm_set1_epi16(static_cast<short>(index));
-
-  __m128i lower_bounds = _mm_setr_epi16(
-      XE_GPU_REG_SHADER_CONSTANT_FETCH_00_0 - 1,
-      XE_GPU_REG_SHADER_CONSTANT_000_X - 1,
-      XE_GPU_REG_SHADER_CONSTANT_BOOL_000_031 - 1, XE_GPU_REG_SCRATCH_REG0 - 1,
-      XE_GPU_REG_COHER_STATUS_HOST - 1, XE_GPU_REG_DC_LUT_RW_INDEX - 1, 0, 0);
-  __m128i upper_bounds = _mm_setr_epi16(
-      XE_GPU_REG_SHADER_CONSTANT_FETCH_31_5 + 1,
-      XE_GPU_REG_SHADER_CONSTANT_511_W + 1,
-      XE_GPU_REG_SHADER_CONSTANT_LOOP_31 + 1, XE_GPU_REG_SCRATCH_REG7 + 1,
-      XE_GPU_REG_COHER_STATUS_HOST + 1, XE_GPU_REG_DC_LUT_30_COLOR + 1, 0, 0);
-
   // quick pre-test
   // todo: figure out just how unlikely this is. if very (it ought to be,
   // theres a ton of registers other than these) make this predicate
@@ -1661,12 +1648,62 @@ void D3D12CommandProcessor::WriteRegisterForceinline(uint32_t index,
                   (index == XE_GPU_REG_COHER_STATUS_HOST) |
                   ((index - XE_GPU_REG_DC_LUT_RW_INDEX) <=
                    (XE_GPU_REG_DC_LUT_30_COLOR - XE_GPU_REG_DC_LUT_RW_INDEX));*/
+#ifdef XE_ARCH_AMD64
+  __m128i to_rangecheck = _mm_set1_epi16(static_cast<short>(index));
+
+  __m128i lower_bounds = _mm_setr_epi16(
+      XE_GPU_REG_SHADER_CONSTANT_FETCH_00_0 - 1,
+      XE_GPU_REG_SHADER_CONSTANT_000_X - 1,
+      XE_GPU_REG_SHADER_CONSTANT_BOOL_000_031 - 1, XE_GPU_REG_SCRATCH_REG0 - 1,
+      XE_GPU_REG_COHER_STATUS_HOST - 1, XE_GPU_REG_DC_LUT_RW_INDEX - 1, 0, 0);
+  __m128i upper_bounds = _mm_setr_epi16(
+      XE_GPU_REG_SHADER_CONSTANT_FETCH_31_5 + 1,
+      XE_GPU_REG_SHADER_CONSTANT_511_W + 1,
+      XE_GPU_REG_SHADER_CONSTANT_LOOP_31 + 1, XE_GPU_REG_SCRATCH_REG7 + 1,
+      XE_GPU_REG_COHER_STATUS_HOST + 1, XE_GPU_REG_DC_LUT_30_COLOR + 1, 0, 0);
   __m128i is_above_lower = _mm_cmpgt_epi16(to_rangecheck, lower_bounds);
   __m128i is_below_upper = _mm_cmplt_epi16(to_rangecheck, upper_bounds);
   __m128i is_within_range = _mm_and_si128(is_above_lower, is_below_upper);
-  register_file_->values[index] = value;
-
   uint32_t movmask = static_cast<uint32_t>(_mm_movemask_epi8(is_within_range));
+#elif XE_ARCH_ARM64
+  const uint16x8_t to_rangecheck = vdupq_n_u16(static_cast<short>(index));
+
+  const uint16_t lower_bounds[8] = {XE_GPU_REG_SHADER_CONSTANT_FETCH_00_0 - 1,
+                                    XE_GPU_REG_SHADER_CONSTANT_000_X - 1,
+                                    XE_GPU_REG_SHADER_CONSTANT_BOOL_000_031 - 1,
+                                    XE_GPU_REG_SCRATCH_REG0 - 1,
+                                    XE_GPU_REG_COHER_STATUS_HOST - 1,
+                                    XE_GPU_REG_DC_LUT_RW_INDEX - 1,
+                                    0,
+                                    0};
+  const uint16_t upper_bounds[8] = {XE_GPU_REG_SHADER_CONSTANT_FETCH_31_5 + 1,
+                                    XE_GPU_REG_SHADER_CONSTANT_511_W + 1,
+                                    XE_GPU_REG_SHADER_CONSTANT_LOOP_31 + 1,
+                                    XE_GPU_REG_SCRATCH_REG7 + 1,
+                                    XE_GPU_REG_COHER_STATUS_HOST + 1,
+                                    XE_GPU_REG_DC_LUT_30_COLOR + 1,
+                                    0,
+                                    0};
+  const uint16x8_t is_above_lower =
+      vcgtq_s16(to_rangecheck, vld1q_u16(lower_bounds));
+  const uint16x8_t is_below_upper =
+      vcltq_s16(to_rangecheck, vld1q_u16(upper_bounds));
+  const uint16x8_t is_within_range = vandq_u16(is_above_lower, is_below_upper);
+
+  const auto movemask_epi8 = [](uint8x16_t input) -> int {
+    const uint16x8_t high_bits = vreinterpretq_u16_u8(vshrq_n_u8(input, 7));
+    const uint32x4_t pair16 =
+        vreinterpretq_u32_u16(vsraq_n_u16(high_bits, high_bits, 7));
+    const uint64x2_t pair32 =
+        vreinterpretq_u64_u32(vsraq_n_u32(pair16, pair16, 14));
+    const uint8x16_t pair64 =
+        vreinterpretq_u8_u64(vsraq_n_u64(pair32, pair32, 28));
+    return vgetq_lane_u8(pair64, 0) | ((int)vgetq_lane_u8(pair64, 8) << 8);
+  };
+  uint32_t movmask = static_cast<uint32_t>(movemask_epi8(is_within_range));
+#endif
+
+  register_file_->values[index] = value;
 
   if (movmask) {
     if (movmask & (1 << 3)) {
