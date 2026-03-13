@@ -7,6 +7,8 @@
  ******************************************************************************
  */
 
+#if XE_ARCH_AMD64
+
 #include "xenia/base/cvar.h"
 #include "xenia/base/platform.h"
 #define XBYAK_NO_OP_NAMES
@@ -135,3 +137,5 @@ void InitFeatureFlags() {
 }
 }  // namespace amd64
 }  // namespace xe
+
+#endif
