@@ -869,6 +869,8 @@ void Value::Permute(Value* src1, Value* src2, TypeName type) {
       perm.u8[i * 2] = v * 2;
       perm.u8[i * 2 + 1] = v * 2 + 1;
     }
+
+#if XE_ARCH_AMD64
     auto lod = [](const vec128_t& v) {
       return _mm_loadu_si128((const __m128i*)&v);
     };
@@ -895,6 +897,41 @@ void Value::Permute(Value* src1, Value* src2, TypeName type) {
     }
 
     sto(constant.v128, _mm_blendv_epi8(xmm1, xmm2, lod(unp_mask)));
+#elif XE_ARCH_ARM64
+    auto lod = [](const vec128_t& v) -> uint16x8_t {
+      return vld1q_u16((const uint16_t*)&v);
+    };
+    auto sto = [](vec128_t& v, uint16x8_t x) {
+      return vst1q_u16((uint16x8_t*)&v, x);
+    };
+
+    auto shuffle_epi8 = [](uint8x16_t table, uint8x16_t index) -> uint8x16_t {
+      const int8x16_t mask = vshrq_n_s8(vreinterpretq_s8_u8(index), 0b111);
+      index = vandq_u8(index, vdupq_n_u8(0b1111));
+      index = vqtbl1q_u8(table, index);
+      return vbicq_u8(index, vreinterpretq_u8_s8(mask));
+    };
+
+    uint16x8_t q1 = lod(src1->constant.v128);
+    uint16x8_t q2 = lod(src2->constant.v128);
+    q1 = shuffle_epi8(q1, lod(perm));
+    q2 = shuffle_epi8(q2, lod(perm));
+    uint8_t mask = 0;
+    for (int i = 0; i < 8; i++) {
+      if (perm_ctrl.i16[i] == 0) {
+        mask |= 1 << (7 - i);
+      }
+    }
+
+    vec128_t unp_mask = vec128b(0);
+    for (int i = 0; i < 8; i++) {
+      if (mask & (1 << i)) {
+        unp_mask.u16[i] = 0xFFFF;
+      }
+    }
+
+    sto(constant.v128, vbslq_u32(q1, q2, lod(unp_mask)));
+#endif
 
   } else {
     assert_unhandled_case(type);
