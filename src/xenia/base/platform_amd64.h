@@ -11,6 +11,8 @@
 #define XENIA_BASE_PLATFORM_AMD64_H_
 #include <cstdint>
 
+#if XE_ARCH_AMD64
+
 namespace xe {
 namespace amd64 {
 enum X64FeatureFlags : uint64_t {
@@ -59,3 +61,5 @@ void InitFeatureFlags();
 }  // namespace xe
 
 #endif  // XENIA_BASE_PLATFORM_AMD64_H_
+
+#endif
