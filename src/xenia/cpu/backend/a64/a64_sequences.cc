@@ -43,7 +43,10 @@ DEFINE_bool(no_round_to_single, false,
             "Not for users, breaks games. Skip rounding double values to "
             "single precision and back",
             "CPU");
-
+DEFINE_bool(delay_via_maybeyield, false,
+            "implement the db16cyc instruction via MaybeYield, may improve "
+            "scheduling of guest threads",
+            "a64");
 namespace xe {
 namespace cpu {
 namespace backend {
@@ -2692,6 +2695,22 @@ struct SET_ROUNDING_MODE_I32
   }
 };
 EMITTER_OPCODE_TABLE(OPCODE_SET_ROUNDING_MODE, SET_ROUNDING_MODE_I32);
+
+static void MaybeYieldForwarder(void* ctx) { xe::threading::MaybeYield(); }
+// ============================================================================
+// OPCODE_DELAY_EXECUTION
+// ============================================================================
+struct DELAY_EXECUTION
+    : Sequence<DELAY_EXECUTION, I<OPCODE_DELAY_EXECUTION, VoidOp>> {
+  static void Emit(A64Emitter& e, const EmitArgType& i) {
+    if (cvars::delay_via_maybeyield) {
+      e.CallNativeSafe((void*)MaybeYieldForwarder);
+    } else {
+      e.YIELD();
+    }
+  }
+};
+EMITTER_OPCODE_TABLE(OPCODE_DELAY_EXECUTION, DELAY_EXECUTION);
 
 // Include anchors to other sequence sources so they get included in the build.
 extern volatile int anchor_control;
