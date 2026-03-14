@@ -94,10 +94,6 @@ if(MSVC)
     add_compile_definitions(
       _AMD64=1
     )
-  elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-    add_compile_options(
-      /arch:armv8.0    # ARMv8.0 as a baseline
-    )
   endif()
   add_link_options(
     /ignore:4006  # Ignores complaints about empty obj files
