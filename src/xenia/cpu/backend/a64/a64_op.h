@@ -609,7 +609,31 @@ struct Sequence {
     }
   }
 };
+template <typename T>
+static QReg GetInputRegOrConstant(A64Emitter& e, const T& input,
+                                  QReg reg_to_use_if_const) {
+  if (input.is_constant) {
+    using constant_type = std::remove_reference_t<decltype(input.constant())>;
 
+    if constexpr (std::is_integral_v<constant_type>) {
+      vec128_t input_constant = vec128b(0);
+      if constexpr (sizeof(constant_type) == 4) {
+        input_constant.i32[0] = input.constant();
+
+      } else if constexpr (sizeof(constant_type) == 8) {
+        input_constant.low = input.constant();
+      } else {
+        assert_unhandled_case(sizeof(constant_type));
+      }
+      e.LoadConstantV(reg_to_use_if_const, input_constant);
+    } else {
+      e.LoadConstantV(reg_to_use_if_const, input.constant());
+    }
+    return reg_to_use_if_const;
+  } else {
+    return input.reg().toQ();
+  }
+}
 }  // namespace a64
 }  // namespace backend
 }  // namespace cpu

@@ -294,10 +294,11 @@ struct CONVERT_I32_F32
     : Sequence<CONVERT_I32_F32, I<OPCODE_CONVERT, I32Op, F32Op>> {
   static void Emit(A64Emitter& e, const EmitArgType& i) {
     // TODO(benvanik): saturation check? cvtt* (trunc?)
+    QReg src1 = GetInputRegOrConstant(e, i.src1, Q0);
     if (i.instr->flags == ROUND_TO_ZERO) {
-      e.FCVTZS(i.dest, i.src1.reg().toS());
+      e.FCVTZS(i.dest, src1.toS());
     } else {
-      e.FCVTNS(i.dest, i.src1.reg().toS());
+      e.FCVTNS(i.dest, src1.toS());
     }
   }
 };
@@ -306,46 +307,55 @@ struct CONVERT_I32_F64
   static void Emit(A64Emitter& e, const EmitArgType& i) {
     // Intel returns 0x80000000 if the double value does not fit within an int32
     // ARM64 and PPC saturates the value instead
+    QReg src1 = GetInputRegOrConstant(e, i.src1, Q0);
     if (i.instr->flags == ROUND_TO_ZERO) {
-      e.FCVTZS(i.dest, i.src1.reg().toD());
+      e.FCVTZS(i.dest, src1.toD());
     } else {
-      e.FCVTNS(i.dest, i.src1.reg().toD());
+      e.FCVTNS(i.dest, src1.toD());
     }
   }
 };
 struct CONVERT_I64_F64
     : Sequence<CONVERT_I64_F64, I<OPCODE_CONVERT, I64Op, F64Op>> {
   static void Emit(A64Emitter& e, const EmitArgType& i) {
+    QReg src1 = GetInputRegOrConstant(e, i.src1, Q0);
     if (i.instr->flags == ROUND_TO_ZERO) {
-      e.FCVTZS(i.dest, i.src1.reg().toD());
+      e.FCVTZS(i.dest, src1.toD());
     } else {
-      e.FCVTNS(i.dest, i.src1.reg().toD());
+      e.FCVTNS(i.dest, src1.toD());
     }
   }
 };
 struct CONVERT_F32_I32
     : Sequence<CONVERT_F32_I32, I<OPCODE_CONVERT, F32Op, I32Op>> {
   static void Emit(A64Emitter& e, const EmitArgType& i) {
-    e.SCVTF(i.dest.reg().toS(), i.src1);
+    assert_impossible_sequence(CONVERT_F32_I32);
   }
 };
 struct CONVERT_F32_F64
     : Sequence<CONVERT_F32_F64, I<OPCODE_CONVERT, F32Op, F64Op>> {
   static void Emit(A64Emitter& e, const EmitArgType& i) {
-    e.FCVT(i.dest.reg().toS(), i.src1.reg().toD());
+    QReg src1 = GetInputRegOrConstant(e, i.src1, Q0);
+    e.FCVT(i.dest.reg().toS(), src1.toD());
   }
 };
 struct CONVERT_F64_I64
     : Sequence<CONVERT_F64_I64, I<OPCODE_CONVERT, F64Op, I64Op>> {
   static void Emit(A64Emitter& e, const EmitArgType& i) {
-    e.SCVTF(i.dest.reg().toD(), i.src1);
+    XReg src1 = GetTempReg<XReg>(e);
+    if (i.src1.is_constant) {
+      e.MOV(src1, i.src1.constant());
+    } else {
+      src1 = i.src1.reg();
+    }
+    e.SCVTF(i.dest.reg().toD(), src1);
   }
 };
 struct CONVERT_F64_F32
     : Sequence<CONVERT_F64_F32, I<OPCODE_CONVERT, F64Op, F32Op>> {
   static void Emit(A64Emitter& e, const EmitArgType& i) {
-    // e.vcvtss2sd(i.dest, i.src1);
-    e.FCVT(i.dest.reg().toD(), i.src1.reg().toS());
+    QReg src1 = GetInputRegOrConstant(e, i.src1, Q0);
+    e.FCVT(i.dest.reg().toD(), src1.toS());
   }
 };
 EMITTER_OPCODE_TABLE(OPCODE_CONVERT, CONVERT_I32_F32, CONVERT_I32_F64,
