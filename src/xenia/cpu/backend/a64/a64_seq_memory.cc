@@ -177,6 +177,69 @@ EMITTER_OPCODE_TABLE(OPCODE_ATOMIC_EXCHANGE, ATOMIC_EXCHANGE_I8,
                      ATOMIC_EXCHANGE_I64);
 
 // ============================================================================
+// OPCODE_RESERVED_LOAD
+// ============================================================================
+struct RESERVED_LOAD_INT32
+    : Sequence<RESERVED_LOAD_INT32, I<OPCODE_RESERVED_LOAD, I32Op, I64Op>> {
+  static void Emit(A64Emitter& e, const EmitArgType& i) {
+    const XReg addr_reg = ComputeMemoryAddress(e, i.src1);
+    // TODO(wunkolo): LSE extensions
+    e.LDAXR(i.dest, addr_reg);
+  }
+};
+
+struct RESERVED_LOAD_INT64
+    : Sequence<RESERVED_LOAD_INT64, I<OPCODE_RESERVED_LOAD, I64Op, I64Op>> {
+  static void Emit(A64Emitter& e, const EmitArgType& i) {
+    const XReg addr_reg = ComputeMemoryAddress(e, i.src1);
+    e.LDAXR(i.dest, addr_reg);
+  }
+};
+
+EMITTER_OPCODE_TABLE(OPCODE_RESERVED_LOAD, RESERVED_LOAD_INT32,
+                     RESERVED_LOAD_INT64);
+
+// ============================================================================
+// OPCODE_RESERVED_STORE
+// ============================================================================
+struct RESERVED_STORE_INT32
+    : Sequence<RESERVED_STORE_INT32,
+               I<OPCODE_RESERVED_STORE, I8Op, I64Op, I32Op>> {
+  static void Emit(A64Emitter& e, const EmitArgType& i) {
+    const XReg addr_reg = ComputeMemoryAddress(e, i.src1);
+    WReg write_reg = GetTempReg<WReg>(e);
+    if (i.src2.is_constant) {
+      e.MOV(write_reg, i.src2.constant());
+    } else {
+      write_reg = i.src2.reg();
+    }
+    e.STLXR(W1, write_reg, addr_reg);
+    e.CMP(W1, 0);
+    e.CSET(i.dest, Cond::EQ);
+  }
+};
+
+struct RESERVED_STORE_INT64
+    : Sequence<RESERVED_STORE_INT64,
+               I<OPCODE_RESERVED_STORE, I8Op, I64Op, I64Op>> {
+  static void Emit(A64Emitter& e, const EmitArgType& i) {
+    const XReg addr_reg = ComputeMemoryAddress(e, i.src1);
+    XReg write_reg = GetTempReg<XReg>(e);
+    if (i.src2.is_constant) {
+      e.MOV(write_reg, i.src2.constant());
+    } else {
+      write_reg = i.src2.reg();
+    }
+    e.STLXR(W1, write_reg, addr_reg);
+    e.CMP(W1, 0);
+    e.CSET(i.dest, Cond::EQ);
+  }
+};
+
+EMITTER_OPCODE_TABLE(OPCODE_RESERVED_STORE, RESERVED_STORE_INT32,
+                     RESERVED_STORE_INT64);
+
+// ============================================================================
 // OPCODE_ATOMIC_COMPARE_EXCHANGE
 // ============================================================================
 struct ATOMIC_COMPARE_EXCHANGE_I32
