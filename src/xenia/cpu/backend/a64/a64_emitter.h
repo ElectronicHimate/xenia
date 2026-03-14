@@ -140,7 +140,7 @@ class A64Emitter : public oaknut::VectorCodeGenerator {
 
  public:
   // Reserved:  XSP, X27, X28
-  // Scratch:   X1-X15, X30 | V0-v7 and V16-V31
+  // Scratch:   X1-X15, X30 | V0-V7 and V16-V31
   //            V0-2
   // Available: X19-X26
   //            V4-V15 (save to get V3)

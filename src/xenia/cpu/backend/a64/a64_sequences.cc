@@ -39,6 +39,11 @@
 #include "xenia/cpu/hir/hir_builder.h"
 #include "xenia/cpu/processor.h"
 
+DEFINE_bool(no_round_to_single, false,
+            "Not for users, breaks games. Skip rounding double values to "
+            "single precision and back",
+            "CPU");
+
 namespace xe {
 namespace cpu {
 namespace backend {
@@ -361,6 +366,26 @@ struct CONVERT_F64_F32
 EMITTER_OPCODE_TABLE(OPCODE_CONVERT, CONVERT_I32_F32, CONVERT_I32_F64,
                      CONVERT_I64_F64, CONVERT_F32_I32, CONVERT_F32_F64,
                      CONVERT_F64_I64, CONVERT_F64_F32);
+
+// ============================================================================
+// OPCODE_TO_SINGLE
+// ============================================================================
+struct TOSINGLE_F64_F64
+    : Sequence<TOSINGLE_F64_F64, I<OPCODE_TO_SINGLE, F64Op, F64Op>> {
+  static void Emit(A64Emitter& e, const EmitArgType& i) {
+    QReg src1 = GetInputRegOrConstant(e, i.src1, Q1);
+
+    if (cvars::no_round_to_single) {
+      if (i.dest != i.src1 || i.src1.is_constant) {
+        e.FMOV(i.dest, src1.toD());
+      }
+    } else {
+      e.FCVT(S0, src1.toD());
+      e.FCVT(i.dest, S0);
+    }
+  }
+};
+EMITTER_OPCODE_TABLE(OPCODE_TO_SINGLE, TOSINGLE_F64_F64);
 
 // ============================================================================
 // OPCODE_ROUND
