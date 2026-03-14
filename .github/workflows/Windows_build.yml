@@ -50,7 +50,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: windows-2025
+    runs-on: windows-11-arm
     env:
       POWERSHELL_TELEMETRY_OPTOUT: 1
     steps:
@@ -114,11 +114,11 @@ jobs:
 
           git submodule update --init --depth=1 -j $env:NUMBER_OF_PROCESSORS (Select-String -CaseSensitive '(?<=path = ).+' .gitmodules).Matches.Value
       - name: Build
-        run: python xenia-build.py build --config=Release --target=xenia-app
+        run: python xenia-build.py build --config=Release --target=xenia-app --arch=arm64
       - name: Prepare artifacts
         id: prepare_artifacts
         run: |
-          foreach ($file in 'build\bin\Windows\Release\xenia_canary.exe') {
+          foreach ($file in '**\xenia_canary.exe') {
             if ((get-item $file).Length -le 100000) {
               echo "::error::$file is too small."
             }
