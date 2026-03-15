@@ -7,6 +7,7 @@
  ******************************************************************************
  */
 
+#include "C:/a/xenia/xenia/src/xenia/base/host_thread_context.h"
 #include "xenia/cpu/backend/a64/a64_backend.h"
 
 #include <cstddef>
