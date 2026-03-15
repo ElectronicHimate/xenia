@@ -26,6 +26,8 @@
 #include "xenia/cpu/processor.h"
 #include "xenia/cpu/stack_walker.h"
 
+bool TestCapstonePstate(AArch64CC_CondCode cond, uint32_t pstate);
+
 DEFINE_int32(a64_extension_mask, -1,
              "Allow the detection and utilization of specific instruction set "
              "features.\n"
