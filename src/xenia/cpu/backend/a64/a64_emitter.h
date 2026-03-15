@@ -106,6 +106,7 @@ enum VConst {
   VSignMaskI16,
   VSignMaskI32,
   VSignMaskF32,
+  VExponentMaskF32,
   VShortMinPS,
   VShortMaxPS,
   VIntMin,

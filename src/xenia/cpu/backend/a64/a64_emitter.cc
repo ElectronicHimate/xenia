@@ -769,6 +769,7 @@ static const vec128_t v_consts[] = {
     vec128i(0x80000000u, 0x80000000u, 0x80000000u, 0x80000000u),
     /* VSignMaskF32         */
     vec128i(0x80000000u, 0x80000000u, 0x80000000u, 0x80000000u),
+    /* VExponentMask        */ vec128i(0x7f800000),
     /* VShortMinPS          */ vec128f(SHRT_MIN),
     /* VShortMaxPS          */ vec128f(SHRT_MAX),
     /* VIntMin              */ vec128i(INT_MIN),

@@ -58,6 +58,42 @@ struct VECTOR_CONVERT_F2I
 EMITTER_OPCODE_TABLE(OPCODE_VECTOR_CONVERT_F2I, VECTOR_CONVERT_F2I);
 
 // ============================================================================
+// OPCODE_VECTOR_DENORMFLUSH
+// ============================================================================
+struct VECTOR_DENORMFLUSH
+    : Sequence<VECTOR_DENORMFLUSH,
+               I<OPCODE_VECTOR_DENORMFLUSH, V128Op, V128Op>> {
+  static void Emit(A64Emitter& e, const EmitArgType& i) {
+    // TODO(wunkolo): Implement FPCR control features, this should help remove
+    // the need to try and explicitly handle denormal flushing by matching PPC
+    // behavior by default.
+
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
+
+    // Mask the exponent bits of each element
+    e.LDR(Q0, vconst_addr, e.GetVConstOffset(VExponentMaskF32));
+    e.AND(Q0.B16(), Q0.B16(), i.src1.reg().B16());
+
+    // If the exponent bits are zero, then it is a denormal
+    // Create a mask of denormal values
+    e.CMEQ(Q0.S4(), Q0.S4(), 0);
+    // and-not this mask to isolate all non-denormal values, denormal values are
+    // now zeroed out
+    e.BIC(Q0.B16(), i.src1.reg().B16(), Q0.B16());
+
+    // Extract the original sign-bits
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VSignMaskF32));
+    e.AND(Q1.B16(), Q1.B16(), i.src1.reg().B16());
+
+    // Combine sign bits with non-denormal-mask to preserve the sign of
+    // previously denormal values into +-0 values
+    e.ORR(i.dest.reg().B16(), Q0.B16(), Q1.B16());
+  }
+};
+EMITTER_OPCODE_TABLE(OPCODE_VECTOR_DENORMFLUSH, VECTOR_DENORMFLUSH);
+
+// ============================================================================
 // OPCODE_LOAD_VECTOR_SHL
 // ============================================================================
 static const vec128_t lvsl_table[16] = {
