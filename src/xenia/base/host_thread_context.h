@@ -9,6 +9,7 @@
 
 #ifndef XENIA_BASE_HOST_THREAD_CONTEXT_H_
 #define XENIA_BASE_HOST_THREAD_CONTEXT_H_
+#define XE_ARCH_ARM64 1
 
 #include <cstdint>
 #include <string>
