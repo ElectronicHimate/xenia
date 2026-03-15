@@ -83,7 +83,8 @@ struct VECTOR_DENORMFLUSH
     e.BIC(Q0.B16(), i.src1.reg().B16(), Q0.B16());
 
     // Extract the original sign-bits
-    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VSignMaskF32));
+    // e.LDR(Q1, vconst_addr, e.GetVConstOffset(VSignMaskF32));
+    e.MOVI(Q1.S4(), 0x80, LSL, 24);
     e.AND(Q1.B16(), Q1.B16(), i.src1.reg().B16());
 
     // Combine sign bits with non-denormal-mask to preserve the sign of
