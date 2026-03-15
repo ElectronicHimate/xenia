@@ -79,6 +79,7 @@ if(MSVC)
     /MP          # Multi-processor compilation
   )
   add_compile_definitions(
+    libavutil PRIVATE HAVE_NEON=1
     _CRT_NONSTDC_NO_DEPRECATE
     _CRT_SECURE_NO_WARNINGS
     WIN32
