@@ -2696,10 +2696,22 @@ struct SET_ROUNDING_MODE_I32
 };
 EMITTER_OPCODE_TABLE(OPCODE_SET_ROUNDING_MODE, SET_ROUNDING_MODE_I32);
 
-static void MaybeYieldForwarder(void* ctx) { xe::threading::MaybeYield(); }
+// ============================================================================
+// OPCODE_SET_NJM
+// ============================================================================
+
+struct SET_NJM_I8 : Sequence<SET_NJM_I8, I<OPCODE_SET_NJM, VoidOp, I8Op>> {
+  static void Emit(A64Emitter& e, const EmitArgType& i) {
+    // TODO(wunkolo): Implement FPCR control features
+    assert_impossible_sequence(SET_NJM_I8);
+  }
+};
+EMITTER_OPCODE_TABLE(OPCODE_SET_NJM, SET_NJM_I8);
+
 // ============================================================================
 // OPCODE_DELAY_EXECUTION
 // ============================================================================
+static void MaybeYieldForwarder(void* ctx) { xe::threading::MaybeYield(); }
 struct DELAY_EXECUTION
     : Sequence<DELAY_EXECUTION, I<OPCODE_DELAY_EXECUTION, VoidOp>> {
   static void Emit(A64Emitter& e, const EmitArgType& i) {
