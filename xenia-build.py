@@ -29,7 +29,6 @@ XENIA_TARGETS = [
     "aes_128",
     "capstone",
     "dxbc",
-    "discord-rpc",
     "fmt",
     "glslang-spirv",
     "imgui",
