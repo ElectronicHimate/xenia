@@ -60,7 +60,7 @@ jobs:
       - name: Setup
         run: .\xb setup
       - name: Build
-        run: .\xb build --config=Checked --target=src\xenia-app
+        run: .\xb build --config=Checked --target=xenia-app
       - name: Prepare artifacts
         id: prepare_artifacts
         run: |
