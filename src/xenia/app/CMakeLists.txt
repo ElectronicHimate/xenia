@@ -71,7 +71,6 @@ target_link_libraries(xenia-app PRIVATE
   capstone
   fmt
   dxbc
-  discord-rpc
   glslang-spirv
   imgui
   libavcodec
@@ -83,7 +82,6 @@ target_link_libraries(xenia-app PRIVATE
 
 # Non-Android specific (always true for Windows/Linux)
 target_link_libraries(xenia-app PRIVATE
-  xenia-app-discord
   xenia-apu-sdl
   xenia-debug-ui
   xenia-helper-sdl
