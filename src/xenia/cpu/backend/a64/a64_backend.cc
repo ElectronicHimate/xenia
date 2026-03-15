@@ -11,9 +11,6 @@
 
 #include <cstddef>
 
-#include "third_party/capstone/include/capstone/arm64.h"
-#include "third_party/capstone/include/capstone/capstone.h"
-
 #include "xenia/base/exception_handler.h"
 #include "xenia/base/logging.h"
 #include "xenia/cpu/backend/a64/a64_assembler.h"
@@ -67,21 +64,9 @@ class A64ThunkEmitter : public A64Emitter {
   void EmitLoadNonvolatileRegs();
 };
 
-A64Backend::A64Backend() : Backend(), code_cache_(nullptr) {
-  if (cs_open(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN, &capstone_handle_) !=
-      CS_ERR_OK) {
-    assert_always("Failed to initialize capstone");
-  }
-  cs_option(capstone_handle_, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
-  cs_option(capstone_handle_, CS_OPT_DETAIL, CS_OPT_ON);
-  cs_option(capstone_handle_, CS_OPT_SKIPDATA, CS_OPT_OFF);
-}
+A64Backend::A64Backend() : Backend() {}
 
 A64Backend::~A64Backend() {
-  if (capstone_handle_) {
-    cs_close(&capstone_handle_);
-  }
-
   A64Emitter::FreeConstData(emitter_data_);
   ExceptionHandler::Uninstall(&ExceptionCallbackThunk, this);
 }
@@ -147,122 +132,18 @@ std::unique_ptr<GuestFunction> A64Backend::CreateGuestFunction(
     Module* module, uint32_t address) {
   return std::make_unique<A64Function>(module, address);
 }
-
-uint64_t ReadCapstoneReg(HostThreadContext* context, arm64_reg reg) {
-  switch (reg) {
-    case ARM64_REG_X0:
-      return context->x[0];
-    case ARM64_REG_X1:
-      return context->x[1];
-    case ARM64_REG_X2:
-      return context->x[2];
-    case ARM64_REG_X3:
-      return context->x[3];
-    case ARM64_REG_X4:
-      return context->x[4];
-    case ARM64_REG_X5:
-      return context->x[5];
-    case ARM64_REG_X6:
-      return context->x[6];
-    case ARM64_REG_X7:
-      return context->x[7];
-    case ARM64_REG_X8:
-      return context->x[8];
-    case ARM64_REG_X9:
-      return context->x[9];
-    case ARM64_REG_X10:
-      return context->x[10];
-    case ARM64_REG_X11:
-      return context->x[11];
-    case ARM64_REG_X12:
-      return context->x[12];
-    case ARM64_REG_X13:
-      return context->x[13];
-    case ARM64_REG_X14:
-      return context->x[14];
-    case ARM64_REG_X15:
-      return context->x[15];
-    case ARM64_REG_X16:
-      return context->x[16];
-    case ARM64_REG_X17:
-      return context->x[17];
-    case ARM64_REG_X18:
-      return context->x[18];
-    case ARM64_REG_X19:
-      return context->x[19];
-    case ARM64_REG_X20:
-      return context->x[20];
-    case ARM64_REG_X21:
-      return context->x[21];
-    case ARM64_REG_X22:
-      return context->x[22];
-    case ARM64_REG_X23:
-      return context->x[23];
-    case ARM64_REG_X24:
-      return context->x[24];
-    case ARM64_REG_X25:
-      return context->x[25];
-    case ARM64_REG_X26:
-      return context->x[26];
-    case ARM64_REG_X27:
-      return context->x[27];
-    case ARM64_REG_X28:
-      return context->x[28];
-    case ARM64_REG_X29:
-      return context->x[29];
-    case ARM64_REG_X30:
-      return context->x[30];
-    default:
-      assert_unhandled_case(reg);
-      return 0;
-  }
-}
-
 uint64_t A64Backend::CalculateNextHostInstruction(ThreadDebugInfo* thread_info,
                                                   uint64_t current_pc) {
-  auto machine_code_ptr = reinterpret_cast<const uint8_t*>(current_pc);
-  size_t remaining_machine_code_size = 64;
-  uint64_t host_address = current_pc;
-  cs_insn insn = {0};
-  cs_detail all_detail = {0};
-  insn.detail = &all_detail;
-  cs_disasm_iter(capstone_handle_, &machine_code_ptr,
-                 &remaining_machine_code_size, &host_address, &insn);
-  const auto& detail = all_detail.arm64;
-  switch (insn.id) {
-    case ARM64_INS_B:
-    case ARM64_INS_BL: {
-      assert_true(detail.operands[0].type == ARM64_OP_IMM);
-      uint64_t target_pc = static_cast<uint64_t>(detail.operands[0].imm);
-      return current_pc + target_pc;
-    } break;
-    case ARM64_INS_BLR:
-    case ARM64_INS_BR: {
-      assert_true(detail.operands[0].type == ARM64_OP_REG);
-      uint64_t target_pc =
-          ReadCapstoneReg(&thread_info->host_context, detail.operands[0].reg);
-      return target_pc;
-    } break;
-    case ARM64_INS_RET: {
-      assert_zero(detail.op_count);
-      // Jump to link register
-      return thread_info->host_context.x[30];
-    } break;
-    case ARM64_INS_CBNZ:
-    case ARM64_INS_CBZ:
-    default: {
-      // Not a branching instruction - just move over it.
-      return current_pc + insn.size;
-    } break;
-  }
+  // TODO(wunkolo): Capstone hookup
+  return current_pc += 4;
 }
 
 void A64Backend::InstallBreakpoint(Breakpoint* breakpoint) {
   breakpoint->ForEachHostAddress([breakpoint](uint64_t host_address) {
     auto ptr = reinterpret_cast<void*>(host_address);
-    auto original_bytes = xe::load_and_swap<uint32_t>(ptr);
-    assert_true(original_bytes != 0x0000'dead);
-    xe::store_and_swap<uint32_t>(ptr, 0x0000'dead);
+    auto original_bytes = xe::load_and_swap<uint16_t>(ptr);
+    assert_true(original_bytes != 0x0F0B);
+    xe::store_and_swap<uint16_t>(ptr, 0x0F0B);
     breakpoint->backend_data().emplace_back(host_address, original_bytes);
   });
 }
@@ -280,18 +161,18 @@ void A64Backend::InstallBreakpoint(Breakpoint* breakpoint, Function* fn) {
 
   // Assume we haven't already installed a breakpoint in this spot.
   auto ptr = reinterpret_cast<void*>(host_address);
-  auto original_bytes = xe::load_and_swap<uint32_t>(ptr);
-  assert_true(original_bytes != 0x0000'dead);
-  xe::store_and_swap<uint32_t>(ptr, 0x0000'dead);
+  auto original_bytes = xe::load_and_swap<uint16_t>(ptr);
+  assert_true(original_bytes != 0x0F0B);
+  xe::store_and_swap<uint16_t>(ptr, 0x0F0B);
   breakpoint->backend_data().emplace_back(host_address, original_bytes);
 }
 
 void A64Backend::UninstallBreakpoint(Breakpoint* breakpoint) {
   for (auto& pair : breakpoint->backend_data()) {
     auto ptr = reinterpret_cast<uint8_t*>(pair.first);
-    auto instruction_bytes = xe::load_and_swap<uint32_t>(ptr);
-    assert_true(instruction_bytes == 0x0000'dead);
-    xe::store_and_swap<uint32_t>(ptr, static_cast<uint32_t>(pair.second));
+    auto instruction_bytes = xe::load_and_swap<uint16_t>(ptr);
+    assert_true(instruction_bytes == 0x0F0B);
+    xe::store_and_swap<uint16_t>(ptr, static_cast<uint16_t>(pair.second));
   }
   breakpoint->backend_data().clear();
 }
@@ -311,9 +192,9 @@ bool A64Backend::ExceptionCallback(Exception* ex) {
 
   // Verify an expected illegal instruction.
   auto instruction_bytes =
-      xe::load_and_swap<uint32_t>(reinterpret_cast<void*>(ex->pc()));
-  if (instruction_bytes != 0x0000'dead) {
-    // Not our `udf #0xdead` - not us.
+      xe::load_and_swap<uint16_t>(reinterpret_cast<void*>(ex->pc()));
+  if (instruction_bytes != 0x0F0B) {
+    // Not our ud2 - not us.
     return false;
   }
 
@@ -452,9 +333,7 @@ ResolveFunctionThunk A64ThunkEmitter::EmitResolveFunctionThunk() {
 
   code_offsets.prolog = offset();
 
-  // Preserve context register
-  STP(ZR, X0, SP, PRE_INDEXED, -16);
-
+  // rsp + 0 = return address
   SUB(SP, SP, stack_size);
 
   code_offsets.prolog_stack_alloc = offset();
@@ -470,7 +349,6 @@ ResolveFunctionThunk A64ThunkEmitter::EmitResolveFunctionThunk() {
   MOV(W1, W17);
   MOV(X16, reinterpret_cast<uint64_t>(&ResolveFunction));
   BLR(X16);
-  MOV(X16, X0);
 
   EmitLoadVolatileRegs();
 
@@ -479,10 +357,7 @@ ResolveFunctionThunk A64ThunkEmitter::EmitResolveFunctionThunk() {
   // add(rsp, stack_size);
   // jmp(rax);
   ADD(SP, SP, stack_size);
-
-  // Reload context register
-  LDP(ZR, X0, SP, POST_INDEXED, 16);
-  BR(X16);
+  BR(X0);
 
   code_offsets.tail = offset();
 
