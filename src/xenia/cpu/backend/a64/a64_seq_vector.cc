@@ -1408,23 +1408,23 @@ struct PACK : Sequence<PACK, I<OPCODE_PACK, V128Op, V128Op, V128Op>> {
       e.LoadConstantV(src, i.src1.constant());
     }
 
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     // Saturate to [3,3....] so that only values between 3...[00] and 3...[FF]
     // are valid - max before min to pack NaN as zero (5454082B is heavily
     // affected by the order - packs 0xFFFFFFFF in matrix code to get a 0
     // constant).
-    e.LDR(Q0, VConstData, e.GetVConstOffset(V3333));
+    e.LDR(Q0, vconst_addr, e.GetVConstOffset(V3333));
     e.FMAX(i.dest.reg().S4(), i.dest.reg().S4(), Q0.S4());
 
-    e.LDR(Q0, VConstData, e.GetVConstOffset(VPackD3DCOLORSat));
+    e.LDR(Q0, vconst_addr, e.GetVConstOffset(VPackD3DCOLORSat));
     e.FMIN(i.dest.reg().S4(), src.S4(), Q0.S4());
     // Extract bytes.
     // RGBA (XYZW) -> ARGB (WXYZ)
     // w = ((src1.uw & 0xFF) << 24) | ((src1.ux & 0xFF) << 16) |
     //     ((src1.uy & 0xFF) << 8) | (src1.uz & 0xFF)
-    e.LDR(Q0, VConstData, e.GetVConstOffset(VPackD3DCOLOR));
+    e.LDR(Q0, vconst_addr, e.GetVConstOffset(VPackD3DCOLOR));
     e.TBL(i.dest.reg().B16(), List{i.dest.reg().B16()}, Q0.B16());
   }
   static uint8x16_t EmulateFLOAT16_2(void*, std::byte src1[16]) {
@@ -1508,18 +1508,18 @@ struct PACK : Sequence<PACK, I<OPCODE_PACK, V128Op, V128Op, V128Op>> {
       src = i.dest;
       e.LoadConstantV(src, i.src1.constant());
     }
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     // Saturate
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackSHORT_Min));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackSHORT_Min));
     e.FMAX(i.dest.reg().S4(), src.S4(), Q1.S4());
 
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackSHORT_Max));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackSHORT_Max));
     e.FMIN(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
 
     // Pack
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackSHORT_2));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackSHORT_2));
     e.TBL(i.dest.reg().B16(), oaknut::List{i.dest.reg().B16()}, Q1.B16());
   }
   static void EmitSHORT_4(A64Emitter& e, const EmitArgType& i) {
@@ -1529,18 +1529,18 @@ struct PACK : Sequence<PACK, I<OPCODE_PACK, V128Op, V128Op, V128Op>> {
       src = i.dest;
       e.LoadConstantV(src, i.src1.constant());
     }
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     // Saturate
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackSHORT_Min));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackSHORT_Min));
     e.FMAX(i.dest.reg().S4(), src.S4(), Q1.S4());
 
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackSHORT_Max));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackSHORT_Max));
     e.FMIN(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
 
     // Pack
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackSHORT_4));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackSHORT_4));
     e.TBL(i.dest.reg().B16(), oaknut::List{i.dest.reg().B16()}, Q1.B16());
   }
   static void EmitUINT_2101010(A64Emitter& e, const EmitArgType& i) {
@@ -1551,22 +1551,22 @@ struct PACK : Sequence<PACK, I<OPCODE_PACK, V128Op, V128Op, V128Op>> {
     if (i.src1.is_constant) {
       e.LoadConstantV(src, i.src1.constant());
     }
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     // Saturate.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackUINT_2101010_MinUnpacked));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackUINT_2101010_MinUnpacked));
     e.FMAX(i.dest.reg().S4(), src.S4(), Q1.S4());
 
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackUINT_2101010_MaxUnpacked));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackUINT_2101010_MaxUnpacked));
     e.FMIN(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
 
     // Remove the unneeded bits of the floats.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackUINT_2101010_MaskUnpacked));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackUINT_2101010_MaskUnpacked));
     e.AND(i.dest.reg().B16(), i.dest.reg().B16(), Q1.B16());
 
     // Shift the components up.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackUINT_2101010_Shift));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackUINT_2101010_Shift));
     e.USHL(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
 
     // Combine the components.
@@ -1592,29 +1592,29 @@ struct PACK : Sequence<PACK, I<OPCODE_PACK, V128Op, V128Op, V128Op>> {
       src = i.dest;
       e.LoadConstantV(src, i.src1.constant());
     }
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     // Saturate.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackULONG_4202020_MinUnpacked));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackULONG_4202020_MinUnpacked));
     e.FMAX(i.dest.reg().S4(), src.S4(), Q1.S4());
 
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackULONG_4202020_MaxUnpacked));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackULONG_4202020_MaxUnpacked));
     e.FMIN(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
 
     // Remove the unneeded bits of the floats (so excess nibbles will also be
     // cleared).
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackULONG_4202020_MaskUnpacked));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackULONG_4202020_MaskUnpacked));
     e.AND(i.dest.reg().B16(), i.dest.reg().B16(), Q1.B16());
 
     // Store Y and W shifted left by 4 so vpshufb can be used with them.
     e.SHL(Q0.S4(), i.dest.reg().S4(), 4);
 
     // Place XZ where they're supposed to be.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackULONG_4202020_PermuteXZ));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackULONG_4202020_PermuteXZ));
     e.TBL(i.dest.reg().B16(), oaknut::List{i.dest.reg().B16()}, Q1.B16());
     // Place YW.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackULONG_4202020_PermuteYW));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackULONG_4202020_PermuteYW));
     e.TBL(Q0.B16(), oaknut::List{Q0.B16()}, Q1.B16());
     // Merge XZ and YW.
     e.EOR(i.dest.reg().B16(), i.dest.reg().B16(), Q0.B16());
@@ -1813,8 +1813,8 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
   }
   static void EmitD3DCOLOR(A64Emitter& e, const EmitArgType& i) {
     // ARGB (WXYZ) -> RGBA (XYZW)
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     QReg src(0);
 
@@ -1830,7 +1830,7 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     }
     // src = ZZYYXXWW
     // Unpack to 000000ZZ,000000YY,000000XX,000000WW
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VUnpackD3DCOLOR));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VUnpackD3DCOLOR));
     e.TBL(i.dest.reg().B16(), oaknut::List{src.B16()}, Q1.B16());
     // Add 1.0f to each.
     e.FMOV(Q1.S4(), FImm8(0, 7, 0));
@@ -1922,14 +1922,14 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     // (VD.z) = 0.0
     // (VD.w) = 1.0 (games splat W after unpacking to get vectors of 1.0f)
     // src is (xx,xx,xx,VALUE)
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     QReg src(0);
     if (i.src1.is_constant) {
       if (i.src1.value->IsConstantZero()) {
         src = i.dest;
-        e.LDR(i.dest, VConstData, e.GetVConstOffset(V3301));
+        e.LDR(i.dest, vconst_addr, e.GetVConstOffset(V3301));
         return;
       }
       // TODO(benvanik): check other common constants/perform shuffle/or here.
@@ -1939,7 +1939,7 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
       src = i.src1;
     }
     // Shuffle bytes.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VUnpackSHORT_2));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VUnpackSHORT_2));
     e.TBL(i.dest.reg().B16(), oaknut::List{src.B16()}, Q1.B16());
 
     // If negative, make smaller than 3 - sign extend before adding.
@@ -1947,14 +1947,14 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     e.SSHR(i.dest.reg().S4(), i.dest.reg().S4(), 16);
 
     // Add 3,3,0,1.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(V3301));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(V3301));
     e.ADD(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
 
     // Return quiet NaNs in case of negative overflow.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VUnpackSHORT_Overflow));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VUnpackSHORT_Overflow));
     e.CMEQ(Q0.S4(), i.dest.reg().S4(), Q1.S4());
 
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VQNaN));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VQNaN));
     e.BSL(Q0.B16(), Q1.B16(), i.dest.reg().B16());
     e.MOV(i.dest.reg().B16(), Q0.B16());
   }
@@ -1965,13 +1965,13 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     // (VD.w) = 3.0 + (VB.y)*2^-22
     // src is (xx,xx,VALUE,VALUE)
 
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     QReg src(0);
     if (i.src1.is_constant) {
       if (i.src1.value->IsConstantZero()) {
-        e.LDR(i.dest, VConstData, e.GetVConstOffset(V3333));
+        e.LDR(i.dest, vconst_addr, e.GetVConstOffset(V3333));
         return;
       }
       // TODO(benvanik): check other common constants/perform shuffle/or here.
@@ -1981,7 +1981,7 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
       src = i.src1;
     }
     // Shuffle bytes.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VUnpackSHORT_4));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VUnpackSHORT_4));
     e.TBL(i.dest.reg().B16(), oaknut::List{src.B16()}, Q1.B16());
 
     // If negative, make smaller than 3 - sign extend before adding.
@@ -1989,25 +1989,25 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     e.SSHR(i.dest.reg().S4(), i.dest.reg().S4(), 16);
 
     // Add 3,3,3,3.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(V3333));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(V3333));
     e.ADD(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
 
     // Return quiet NaNs in case of negative overflow.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VUnpackSHORT_Overflow));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VUnpackSHORT_Overflow));
     e.CMEQ(Q0.S4(), i.dest.reg().S4(), Q1.S4());
 
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VQNaN));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VQNaN));
     e.BSL(Q0.B16(), Q1.B16(), i.dest.reg().B16());
     e.MOV(i.dest.reg().B16(), Q0.B16());
   }
   static void EmitUINT_2101010(A64Emitter& e, const EmitArgType& i) {
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     QReg src(0);
     if (i.src1.is_constant) {
       if (i.src1.value->IsConstantZero()) {
-        e.LDR(i.dest, VConstData, e.GetVConstOffset(V3331));
+        e.LDR(i.dest, vconst_addr, e.GetVConstOffset(V3331));
         return;
       }
       src = i.dest;
@@ -2020,11 +2020,11 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     e.DUP(i.dest.reg().S4(), src.Selem()[3]);
     // Keep only the needed components.
     // Red in 0-9 now, green in 10-19, blue in 20-29, alpha in 30-31.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackUINT_2101010_MaskPacked));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackUINT_2101010_MaskPacked));
     e.AND(i.dest.reg().B16(), i.dest.reg().B16(), Q1.B16());
 
     // Shift the components down.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VPackUINT_2101010_Shift));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VPackUINT_2101010_Shift));
     e.NEG(Q1.S4(), Q1.S4());
     e.USHL(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
     // If XYZ are negative, make smaller than 3 - sign extend XYZ before adding.
@@ -2032,26 +2032,26 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     e.SHL(i.dest.reg().S4(), i.dest.reg().S4(), 22);
     e.SSHR(i.dest.reg().S4(), i.dest.reg().S4(), 22);
     // Add 3,3,3,1.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(V3331));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(V3331));
     e.ADD(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
     // Return quiet NaNs in case of negative overflow.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VUnpackUINT_2101010_Overflow));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VUnpackUINT_2101010_Overflow));
     e.CMEQ(Q0.S4(), i.dest.reg().S4(), Q1.S4());
 
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VQNaN));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VQNaN));
     e.BSL(Q0.B16(), Q1.B16(), i.dest.reg().B16());
     e.MOV(i.dest.reg().B16(), Q0.B16());
     // To convert XYZ to -1 to 1, games multiply by 0x46004020 & sub 0x46C06030.
     // For W to 0 to 1, they multiply by and subtract 0x4A2AAAAB.}
   }
   static void EmitULONG_4202020(A64Emitter& e, const EmitArgType& i) {
-    const XReg VConstData = X3;
-    e.MOV(VConstData, e.GetVConstPtr());
+    const XReg vconst_addr = X3;
+    e.MOV(vconst_addr, e.GetVConstPtr());
 
     QReg src(0);
     if (i.src1.is_constant) {
       if (i.src1.value->IsConstantZero()) {
-        e.LDR(i.dest, VConstData, e.GetVConstOffset(V3331));
+        e.LDR(i.dest, vconst_addr, e.GetVConstOffset(V3331));
         return;
       }
       src = i.dest;
@@ -2061,7 +2061,7 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     }
     // Extract pairs of nibbles to XZYW. XZ will have excess 4 upper bits, YW
     // will have excess 4 lower bits.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VUnpackULONG_4202020_Permute));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VUnpackULONG_4202020_Permute));
     e.TBL(i.dest.reg().B16(), oaknut::List{src.B16()}, Q1.B16());
 
     // Drop the excess nibble of YW.
@@ -2085,13 +2085,13 @@ struct UNPACK : Sequence<UNPACK, I<OPCODE_UNPACK, V128Op, V128Op>> {
     e.SHL(i.dest.reg().S4(), i.dest.reg().S4(), 12);
     e.SSHR(i.dest.reg().S4(), i.dest.reg().S4(), 12);
     // Add 3,3,3,1.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(V3331));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(V3331));
     e.ADD(i.dest.reg().S4(), i.dest.reg().S4(), Q1.S4());
     // Return quiet NaNs in case of negative overflow.
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VUnpackULONG_4202020_Overflow));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VUnpackULONG_4202020_Overflow));
     e.CMEQ(Q0.S4(), i.dest.reg().S4(), Q1.S4());
 
-    e.LDR(Q1, VConstData, e.GetVConstOffset(VQNaN));
+    e.LDR(Q1, vconst_addr, e.GetVConstOffset(VQNaN));
     e.BSL(Q0.B16(), Q1.B16(), i.dest.reg().B16());
     e.MOV(i.dest.reg().B16(), Q0.B16());
   }
