@@ -21,7 +21,7 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
-      "architecture": "x64",
+      "architecture": "arm64",
       "binaryDir": "${sourceDir}/build"
     }
   ],
