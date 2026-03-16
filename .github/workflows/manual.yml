@@ -114,7 +114,7 @@ jobs:
 
           git submodule update --init --depth=1 -j $env:NUMBER_OF_PROCESSORS (Select-String -CaseSensitive '(?<=path = ).+' .gitmodules).Matches.Value
       - name: Build
-        run: python xenia-build.py build --config=Release --target=xenia-app
+        run: python xenia-build.py build --config=Checked --target=xenia-app
       - name: Prepare artifacts
         id: prepare_artifacts
         run: |
@@ -123,8 +123,8 @@ jobs:
               echo "::error::$file is too small."
             }
           }
-          robocopy . build\bin\Windows\Release                                                LICENSE /r:0 /w:0
-          robocopy   build\bin\Windows\Release artifacts\xenia_canary   xenia_canary.exe   LICENSE /r:0 /w:0
+          robocopy . build\bin\Windows\Checked                                                LICENSE /r:0 /w:0
+          robocopy   build\bin\Windows\Checked artifacts\xenia_canary   xenia_canary.exe   LICENSE /r:0 /w:0
           If ($LastExitCode -le 7) { echo "LastExitCode = $LastExitCode";$LastExitCode = 0 }
       - name: Upload xenia canary artifacts
         if: steps.prepare_artifacts.outcome == 'success'
