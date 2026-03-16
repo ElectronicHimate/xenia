@@ -9,10 +9,9 @@
     {
       "name": "default",
       "displayName": "Visual Studio 2022 ARM64",
-      "generator": "Visual Studio 17 2022",
-      "architecture": "ARM64",
-      "toolset": "host=arm64",
-      "binaryDir": "${sourceDir}/build/vs_arm64",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/native",
+      "toolset": "host=arm64,arch=arm64",
       "cacheVariables": {
         "CMAKE_SYSTEM_NAME": "Windows",
         "CMAKE_SYSTEM_PROCESSOR": "ARM64"
