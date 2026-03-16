@@ -16,8 +16,8 @@
         "CMAKE_SYSTEM_NAME": "Windows",
         "CMAKE_SYSTEM_PROCESSOR": "ARM64"
         "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/HostARM64/ARM64/cl.exe",
-        "CMAKE_C_COMPILER": "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/HostARM64/ARM64/cl.exe"
+        "CMAKE_CXX_COMPILER": "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35211/bin/HostARM64/ARM64/cl.exe",
+        "CMAKE_C_COMPILER": "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35211/bin/HostARM64/ARM64/cl.exe"
       }
     }
   ],
