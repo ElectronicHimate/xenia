@@ -465,151 +465,27 @@ function(ffmpeg_common target)
 endfunction()
 
 # --- libavutil ---
-add_library(libavutil STATIC
-  FFmpeg/libavutil/adler32.c
-  FFmpeg/libavutil/aes.c
-  FFmpeg/libavutil/aes_ctr.c
-  FFmpeg/libavutil/audio_fifo.c
-  FFmpeg/libavutil/avstring.c
-  FFmpeg/libavutil/avsscanf.c
-  FFmpeg/libavutil/base64.c
-  FFmpeg/libavutil/blowfish.c
-  FFmpeg/libavutil/bprint.c
-  FFmpeg/libavutil/buffer.c
-  FFmpeg/libavutil/cast5.c
-  FFmpeg/libavutil/camellia.c
-  FFmpeg/libavutil/channel_layout.c
-  FFmpeg/libavutil/csp.c
-  FFmpeg/libavutil/cpu.c
-  FFmpeg/libavutil/crc.c
-  FFmpeg/libavutil/des.c
-  FFmpeg/libavutil/dict.c
-  FFmpeg/libavutil/display.c
-  FFmpeg/libavutil/dovi_meta.c
-  FFmpeg/libavutil/downmix_info.c
-  FFmpeg/libavutil/encryption_info.c
-  FFmpeg/libavutil/error.c
-  FFmpeg/libavutil/eval.c
-  FFmpeg/libavutil/fifo.c
-  FFmpeg/libavutil/file.c
-  FFmpeg/libavutil/file_open.c
-  FFmpeg/libavutil/float_dsp.c
-  FFmpeg/libavutil/fixed_dsp.c
-  FFmpeg/libavutil/frame.c
-  FFmpeg/libavutil/hash.c
-  FFmpeg/libavutil/hdr_dynamic_metadata.c
-  FFmpeg/libavutil/hmac.c
-  FFmpeg/libavutil/hwcontext.c
-  FFmpeg/libavutil/imgutils.c
-  FFmpeg/libavutil/integer.c
-  FFmpeg/libavutil/intmath.c
-  FFmpeg/libavutil/lfg.c
-  FFmpeg/libavutil/lls.c
-  FFmpeg/libavutil/log.c
-  FFmpeg/libavutil/log2_tab.c
-  FFmpeg/libavutil/mathematics.c
-  FFmpeg/libavutil/mastering_display_metadata.c
-  FFmpeg/libavutil/md5.c
-  FFmpeg/libavutil/mem.c
-  FFmpeg/libavutil/murmur3.c
-  FFmpeg/libavutil/opt.c
-  FFmpeg/libavutil/parseutils.c
-  FFmpeg/libavutil/pixdesc.c
-  FFmpeg/libavutil/pixelutils.c
-  FFmpeg/libavutil/random_seed.c
-  FFmpeg/libavutil/rational.c
-  FFmpeg/libavutil/reverse.c
-  FFmpeg/libavutil/rc4.c
-  FFmpeg/libavutil/ripemd.c
-  FFmpeg/libavutil/samplefmt.c
-  FFmpeg/libavutil/sha.c
-  FFmpeg/libavutil/sha512.c
-  FFmpeg/libavutil/slicethread.c
-  FFmpeg/libavutil/spherical.c
-  FFmpeg/libavutil/stereo3d.c
-  FFmpeg/libavutil/threadmessage.c
-  FFmpeg/libavutil/time.c
-  FFmpeg/libavutil/timecode.c
-  FFmpeg/libavutil/tree.c
-  FFmpeg/libavutil/twofish.c
-  FFmpeg/libavutil/utils.c
-  FFmpeg/libavutil/xga_font_data.c
-  FFmpeg/libavutil/xtea.c
-  FFmpeg/libavutil/tea.c
-  FFmpeg/libavutil/tx.c
-  FFmpeg/libavutil/tx_float.c
-  FFmpeg/libavutil/tx_double.c
-  FFmpeg/libavutil/tx_int32.c
-  FFmpeg/libavutil/video_enc_params.c
-  FFmpeg/libavutil/film_grain_params.c
-  FFmpeg/libavutil/side_data.c
-  FFmpeg/libavutil/refstruct.c
-  FFmpeg/libavutil/container_fifo.c
-  FFmpeg/libavutil/float_scalarproduct.c
-  FFmpeg/libavutil/timecode_internal.c
-  FFmpeg/libavutil/iamf.c
-  FFmpeg/libavutil/timestamp.c
-)
-
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-  file(GLOB _util_arch "FFmpeg/libavutil/x86/*.c")
-  target_sources(libavutil PRIVATE ${_util_arch})
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-  file(GLOB _util_arch "FFmpeg/libavutil/aarch64/*.c")
-  target_sources(libavutil PRIVATE ${_util_arch})
+add_library(libavutil STATIC)
+file(GLOB_RECURSE _util_srcs "FFmpeg/libavutil/*.c")
+target_sources(libavutil PRIVATE ${_util_srcs})
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
+  file(GLOB_RECURSE _util_asm "FFmpeg/libavutil/aarch64/*.S")
+  target_sources(libavutil PRIVATE ${_util_asm})
+  set_source_files_properties(${_util_asm} PROPERTIES LANGUAGE ASM_ARM64)
 endif()
 ffmpeg_common(libavutil)
 
 # --- libavcodec ---
-add_library(libavcodec STATIC
-  FFmpeg/libavcodec/ac3_parser.c
-  FFmpeg/libavcodec/adts_parser.c
-  FFmpeg/libavcodec/allcodecs.c
-  FFmpeg/libavcodec/avcodec.c
-  FFmpeg/libavcodec/avdct.c
-  FFmpeg/libavcodec/packet.c
-  FFmpeg/libavcodec/bitstream.c
-  FFmpeg/libavcodec/bitstream_filters.c
-  FFmpeg/libavcodec/bsf.c
-  FFmpeg/libavcodec/codec_desc.c
-  FFmpeg/libavcodec/codec_par.c
-  FFmpeg/libavcodec/d3d11va.c
-  FFmpeg/libavcodec/decode.c
-  FFmpeg/libavcodec/dirac.c
-  FFmpeg/libavcodec/dv_profile.c
-  FFmpeg/libavcodec/encode.c
-  FFmpeg/libavcodec/imgconvert.c
-  FFmpeg/libavcodec/jni.c
-  FFmpeg/libavcodec/mathtables.c
-  FFmpeg/libavcodec/mediacodec.c
-  FFmpeg/libavcodec/mpeg12framerate.c
-  FFmpeg/libavcodec/options.c
-  FFmpeg/libavcodec/parser.c
-  FFmpeg/libavcodec/parsers.c
-  FFmpeg/libavcodec/profiles.c
-  FFmpeg/libavcodec/qsv_api.c
-  FFmpeg/libavcodec/raw.c
-  FFmpeg/libavcodec/utils.c
-  FFmpeg/libavcodec/vorbis_parser.c
-  FFmpeg/libavcodec/xiph.c
-  FFmpeg/libavcodec/dct32_fixed.c
-  FFmpeg/libavcodec/dct32_float.c
-)
+add_library(libavcodec STATIC)
+file(GLOB_RECURSE _codec_srcs "FFmpeg/libavcodec/*.c")
+list(FILTER _codec_srcs EXCLUDE REGEX "neontest\\.c$")
+target_sources(libavcodec PRIVATE ${_codec_srcs})
 
-if(WIN32)
-  target_sources(libavcodec PRIVATE FFmpeg/libavcodec/file_open.c)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
+  file(GLOB_RECURSE _codec_asm "FFmpeg/libavcodec/aarch64/*.S")
+  target_sources(libavcodec PRIVATE ${_codec_asm})
+  set_source_files_properties(${_codec_asm} PROPERTIES LANGUAGE ASM_ARM64)
 endif()
-
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-  file(GLOB _codec_arch "FFmpeg/libavcodec/x86/*.c")
-  target_sources(libavcodec PRIVATE ${_codec_arch})
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-  file(GLOB _codec_arch "FFmpeg/libavcodec/aarch64/*.c")
-  list(FILTER _codec_arch EXCLUDE REGEX "neontest\\.c$")
-  target_sources(libavcodec PRIVATE ${_codec_arch})
-endif()
-
-target_include_directories(libavcodec PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/FFmpeg/libavcodec)
 target_link_libraries(libavcodec PRIVATE libavutil)
 ffmpeg_common(libavcodec)
 
