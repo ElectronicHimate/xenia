@@ -427,6 +427,10 @@ function(ffmpeg_common target)
   target_compile_definitions(${target} PRIVATE
     HAVE_AV_CONFIG_H
     _USE_MATH_DEFINES
+    HAVE_I8MM=0
+    HAVE_SVE=0
+    HAVE_SVE2=0
+    HAVE_NEON=1
   )
   target_include_directories(${target} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-xenia
