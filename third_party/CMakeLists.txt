@@ -480,24 +480,14 @@ endfunction()
 add_library(libavutil STATIC)
 file(GLOB_RECURSE _util_srcs "FFmpeg/libavutil/*.c")
 target_sources(libavutil PRIVATE ${_util_srcs})
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-  file(GLOB_RECURSE _util_asm "FFmpeg/libavutil/aarch64/*.S")
-  target_sources(libavutil PRIVATE ${_util_asm})
-  set_source_files_properties(${_util_asm} PROPERTIES LANGUAGE ASM_ARM64)
-endif()
 ffmpeg_common(libavutil)
 
 # --- libavcodec ---
 add_library(libavcodec STATIC)
 file(GLOB_RECURSE _codec_srcs "FFmpeg/libavcodec/*.c")
+# Remove test file to avoid build errors
 list(FILTER _codec_srcs EXCLUDE REGEX "neontest\\.c$")
 target_sources(libavcodec PRIVATE ${_codec_srcs})
-
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-  file(GLOB_RECURSE _codec_asm "FFmpeg/libavcodec/aarch64/*.S")
-  target_sources(libavcodec PRIVATE ${_codec_asm})
-  set_source_files_properties(${_codec_asm} PROPERTIES LANGUAGE ASM_ARM64)
-endif()
 target_link_libraries(libavcodec PRIVATE libavutil)
 ffmpeg_common(libavcodec)
 
