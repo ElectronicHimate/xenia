@@ -479,13 +479,13 @@ endfunction()
 # --- libavutil ---
 add_library(libavutil STATIC)
 file(GLOB_RECURSE _util_srcs "FFmpeg/libavutil/*.c")
+list(FILTER _util_srcs EXCLUDE REGEX "FFmpeg/libavutil/arm/.*\\.c$")
 target_sources(libavutil PRIVATE ${_util_srcs})
 ffmpeg_common(libavutil)
 
 # --- libavcodec ---
 add_library(libavcodec STATIC)
 file(GLOB_RECURSE _codec_srcs "FFmpeg/libavcodec/*.c")
-# Remove test file to avoid build errors
 list(FILTER _codec_srcs EXCLUDE REGEX "neontest\\.c$")
 target_sources(libavcodec PRIVATE ${_codec_srcs})
 target_link_libraries(libavcodec PRIVATE libavutil)
