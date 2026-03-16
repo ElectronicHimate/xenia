@@ -460,6 +460,8 @@ function(ffmpeg_common target)
   set_target_properties(${target} PROPERTIES LINKER_LANGUAGE C)
 endfunction()
 
+enable_language(ASM_ARM64)
+
 # --- libavutil ---
 add_library(libavutil STATIC
   FFmpeg/libavutil/adler32.c
@@ -546,28 +548,14 @@ add_library(libavutil STATIC
   FFmpeg/libavutil/iamf.c
   FFmpeg/libavutil/timestamp.c
 )
+
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-  # x86 platform files
-  target_sources(libavutil PRIVATE
-    FFmpeg/libavutil/x86/cpu.c
-    FFmpeg/libavutil/x86/fixed_dsp_init.c
-    FFmpeg/libavutil/x86/float_dsp_init.c
-    FFmpeg/libavutil/x86/imgutils_init.c
-    FFmpeg/libavutil/x86/lls_init.c
-    FFmpeg/libavutil/x86/tx_float_init.c
-  )
+  file(GLOB _util_arch "FFmpeg/libavutil/x86/*.c")
+  target_sources(libavutil PRIVATE ${_util_arch})
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-  target_sources(libavutil PRIVATE
-    FFmpeg/libavutil/aarch64/asm.S
-    FFmpeg/libavutil/aarch64/cpu.c
-    FFmpeg/libavutil/aarch64/cpu_sme.S
-    FFmpeg/libavutil/aarch64/cpu_sve.S
-    FFmpeg/libavutil/aarch64/crc.S
-    FFmpeg/libavutil/aarch64/float_dsp_init.c
-    FFmpeg/libavutil/aarch64/float_dsp_neon.S
-    FFmpeg/libavutil/aarch64/tx_float_init.c
-    FFmpeg/libavutil/aarch64/tx_float_neon.S
-  )
+  file(GLOB _util_arch "FFmpeg/libavutil/aarch64/*.c" "FFmpeg/libavutil/aarch64/*.S")
+  target_sources(libavutil PRIVATE ${_util_arch})
+  set_source_files_properties(${_util_arch} PROPERTIES LANGUAGE ASM_ARM64)
 endif()
 ffmpeg_common(libavutil)
 
@@ -605,153 +593,21 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/xiph.c
   FFmpeg/libavcodec/dct32_fixed.c
   FFmpeg/libavcodec/dct32_float.c
-  FFmpeg/libavcodec/faandct.c
-  FFmpeg/libavcodec/faanidct.c
-  FFmpeg/libavcodec/fdctdsp.c
-  FFmpeg/libavcodec/jfdctfst.c
-  FFmpeg/libavcodec/jfdctint.c
-  FFmpeg/libavcodec/idctdsp.c
-  FFmpeg/libavcodec/simple_idct.c
-  FFmpeg/libavcodec/jrevdct.c
-  FFmpeg/libavcodec/mpegaudio.c
-  FFmpeg/libavcodec/mpegaudiodec_common.c
-  FFmpeg/libavcodec/mpegaudiodsp.c
-  FFmpeg/libavcodec/mpegaudiodsp_data.c
-  FFmpeg/libavcodec/mpegaudiodsp_fixed.c
-  FFmpeg/libavcodec/mpegaudiodsp_float.c
-  FFmpeg/libavcodec/mpegaudiodecheader.c
-  FFmpeg/libavcodec/mpegaudiodata.c
-  FFmpeg/libavcodec/sinewin.c
-  FFmpeg/libavcodec/wma_freqs.c
-  FFmpeg/libavcodec/mpegaudiodec_fixed.c
-  FFmpeg/libavcodec/mpegaudiodec_float.c
-  FFmpeg/libavcodec/wmaprodec.c
-  FFmpeg/libavcodec/wma.c
-  FFmpeg/libavcodec/wma_common.c
-  FFmpeg/libavcodec/wmadec.c
-  FFmpeg/libavcodec/aactab.c
-  FFmpeg/libavcodec/mpegaudio_parser.c
-  FFmpeg/libavcodec/pthread.c
-  FFmpeg/libavcodec/pthread_slice.c
-  FFmpeg/libavcodec/pthread_frame.c
-  FFmpeg/libavcodec/get_buffer.c
-  FFmpeg/libavcodec/vlc.c
-  FFmpeg/libavcodec/threadprogress.c
-  FFmpeg/libavcodec/bsf/null.c
-  FFmpeg/libavcodec/exif.c
-  FFmpeg/libavcodec/mpegaudiotabs.c
-  FFmpeg/libavcodec/tiff_common.c
 )
+
 if(WIN32)
   target_sources(libavcodec PRIVATE FFmpeg/libavcodec/file_open.c)
 endif()
+
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-  # x86 platform files
-  target_sources(libavcodec PRIVATE
-    FFmpeg/libavcodec/x86/constants.c
-    FFmpeg/libavcodec/x86/fdctdsp_init.c
-    FFmpeg/libavcodec/x86/idctdsp_init.c
-    FFmpeg/libavcodec/x86/mpegaudiodsp.c
-    FFmpeg/libavcodec/x86/fdct.c
-  )
+  file(GLOB _codec_arch "FFmpeg/libavcodec/x86/*.c" "FFmpeg/libavcodec/x86/*.asm")
+  target_sources(libavcodec PRIVATE ${_codec_arch})
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-  target_sources(libavcodec PRIVATE
-    FFmpeg/libavcodec/aarch64/aacencdsp_init.c
-    FFmpeg/libavcodec/aarch64/aacencdsp_neon.S
-    FFmpeg/libavcodec/aarch64/aacpsdsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/aacpsdsp_neon.S
-    FFmpeg/libavcodec/aarch64/ac3dsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/ac3dsp_neon.S
-    FFmpeg/libavcodec/aarch64/fdctdsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/fdctdsp_neon.S
-    FFmpeg/libavcodec/aarch64/h264chroma_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/h264cmc_neon.S
-    FFmpeg/libavcodec/aarch64/h264dsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/h264dsp_neon.S
-    FFmpeg/libavcodec/aarch64/h264idct_neon.S
-    FFmpeg/libavcodec/aarch64/h264pred_init.c
-    FFmpeg/libavcodec/aarch64/h264pred_neon.S
-    FFmpeg/libavcodec/aarch64/h264qpel_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/h264qpel_neon.S
-    FFmpeg/libavcodec/aarch64/hevcdsp_deblock_neon.S
-    FFmpeg/libavcodec/aarch64/hevcdsp_dequant_neon.S
-    FFmpeg/libavcodec/aarch64/hevcdsp_idct_neon.S
-    FFmpeg/libavcodec/aarch64/hevcdsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/hpeldsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/hpeldsp_neon.S
-    FFmpeg/libavcodec/aarch64/huffyuvdsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/huffyuvdsp_neon.S
-    FFmpeg/libavcodec/aarch64/idctdsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/idctdsp_neon.S
-    FFmpeg/libavcodec/aarch64/me_cmp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/me_cmp_neon.S
-    FFmpeg/libavcodec/aarch64/mpegaudiodsp_init.c
-    FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
-    FFmpeg/libavcodec/aarch64/mpegvideoencdsp_init.c
-    FFmpeg/libavcodec/aarch64/mpegvideoencdsp_neon.S
-    FFmpeg/libavcodec/aarch64/opusdsp_init.c
-    FFmpeg/libavcodec/aarch64/opusdsp_neon.S
-    FFmpeg/libavcodec/aarch64/pixblockdsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/pixblockdsp_neon.S
-    FFmpeg/libavcodec/aarch64/pngdsp_init.c
-    FFmpeg/libavcodec/aarch64/pngdsp_neon.S
-    FFmpeg/libavcodec/aarch64/rv40dsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/sbrdsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/sbrdsp_neon.S
-    FFmpeg/libavcodec/aarch64/synth_filter_init.c
-    FFmpeg/libavcodec/aarch64/synth_filter_neon.S
-    FFmpeg/libavcodec/aarch64/vc1dsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/vc1dsp_neon.S
-    FFmpeg/libavcodec/aarch64/vorbisdsp_init.c
-    FFmpeg/libavcodec/aarch64/vorbisdsp_neon.S
-    FFmpeg/libavcodec/aarch64/vp8dsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/vp8dsp_neon.S
-    FFmpeg/libavcodec/aarch64/vp9dsp_init_aarch64.c
-    FFmpeg/libavcodec/aarch64/vp9dsp_neon.S
-  )
+  file(GLOB _codec_arch "FFmpeg/libavcodec/aarch64/*.c" "FFmpeg/libavcodec/aarch64/*.S")
+  target_sources(libavcodec PRIVATE ${_codec_arch})
+  set_source_files_properties(${_codec_arch} PROPERTIES LANGUAGE ASM_ARM64)
 endif()
-target_include_directories(libavcodec PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/FFmpeg/libavcodec
-)
+
+target_include_directories(libavcodec PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/FFmpeg/libavcodec)
 target_link_libraries(libavcodec PRIVATE libavutil)
 ffmpeg_common(libavcodec)
-
-# --- libavformat ---
-add_library(libavformat STATIC
-  FFmpeg/libavformat/allformats.c
-  FFmpeg/libavformat/avio.c
-  FFmpeg/libavformat/aviobuf.c
-  FFmpeg/libavformat/dump.c
-  FFmpeg/libavformat/format.c
-  FFmpeg/libavformat/id3v1.c
-  FFmpeg/libavformat/id3v2.c
-  FFmpeg/libavformat/metadata.c
-  FFmpeg/libavformat/mux.c
-  FFmpeg/libavformat/options.c
-  FFmpeg/libavformat/os_support.c
-  FFmpeg/libavformat/protocols.c
-  FFmpeg/libavformat/riff.c
-  FFmpeg/libavformat/sdp.c
-  FFmpeg/libavformat/url.c
-  FFmpeg/libavformat/utils.c
-  FFmpeg/libavformat/riffdec.c
-  FFmpeg/libavformat/asfdec_f.c
-  FFmpeg/libavformat/asf.c
-  FFmpeg/libavformat/asfcrypt.c
-  FFmpeg/libavformat/avlanguage.c
-  FFmpeg/libavformat/mp3dec.c
-  FFmpeg/libavformat/replaygain.c
-  FFmpeg/libavformat/file.c
-  FFmpeg/libavformat/demux.c
-  FFmpeg/libavformat/avformat.c
-  FFmpeg/libavformat/seek.c
-  FFmpeg/libavformat/demux_utils.c
-  FFmpeg/libavformat/urldecode.c
-  FFmpeg/libavformat/asf_tags.c
-  FFmpeg/libavformat/to_upper4.c
-)
-if(WIN32)
-  target_sources(libavformat PRIVATE FFmpeg/libavformat/file_open.c)
-endif()
-target_link_libraries(libavformat PRIVATE libavutil libavcodec)
-ffmpeg_common(libavformat)
