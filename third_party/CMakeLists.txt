@@ -1,7 +1,5 @@
 # third_party/CMakeLists.txt - All third-party library targets.
 
-enable_language(ASM_ARM64)
-
 # Suppress warnings for all third-party code.
 if(MSVC)
   add_compile_options(/W0)
