@@ -558,19 +558,15 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
   )
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   target_sources(libavutil PRIVATE
+    FFmpeg/libavutil/aarch64/asm.S
     FFmpeg/libavutil/aarch64/cpu.c
+    FFmpeg/libavutil/aarch64/cpu_sme.S
+    FFmpeg/libavutil/aarch64/cpu_sve.S
+    FFmpeg/libavutil/aarch64/crc.S
     FFmpeg/libavutil/aarch64/float_dsp_init.c
     FFmpeg/libavutil/aarch64/float_dsp_neon.S
     FFmpeg/libavutil/aarch64/tx_float_init.c
     FFmpeg/libavutil/aarch64/tx_float_neon.S
-    FFmpeg/libavutil/aarch64/fixed_dsp_init.c
-    FFmpeg/libavutil/aarch64/fixed_dsp_neon.S
-  )
-  set_source_files_properties(
-    FFmpeg/libavutil/aarch64/float_dsp_neon.S
-    FFmpeg/libavutil/aarch64/tx_float_neon.S
-    FFmpeg/libavutil/aarch64/fixed_dsp_neon.S
-    PROPERTIES LANGUAGE ASM_ARM64
   )
 endif()
 ffmpeg_common(libavutil)
@@ -660,18 +656,58 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
   )
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   target_sources(libavcodec PRIVATE
+    FFmpeg/libavcodec/aarch64/aacencdsp_init.c
+    FFmpeg/libavcodec/aarch64/aacencdsp_neon.S
+    FFmpeg/libavcodec/aarch64/aacpsdsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/aacpsdsp_neon.S
+    FFmpeg/libavcodec/aarch64/ac3dsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/ac3dsp_neon.S
+    FFmpeg/libavcodec/aarch64/fdctdsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/fdctdsp_neon.S
+    FFmpeg/libavcodec/aarch64/h264chroma_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/h264cmc_neon.S
+    FFmpeg/libavcodec/aarch64/h264dsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/h264dsp_neon.S
+    FFmpeg/libavcodec/aarch64/h264idct_neon.S
+    FFmpeg/libavcodec/aarch64/h264pred_init.c
+    FFmpeg/libavcodec/aarch64/h264pred_neon.S
+    FFmpeg/libavcodec/aarch64/h264qpel_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/h264qpel_neon.S
+    FFmpeg/libavcodec/aarch64/hevcdsp_deblock_neon.S
+    FFmpeg/libavcodec/aarch64/hevcdsp_dequant_neon.S
+    FFmpeg/libavcodec/aarch64/hevcdsp_idct_neon.S
+    FFmpeg/libavcodec/aarch64/hevcdsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/hpeldsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/hpeldsp_neon.S
+    FFmpeg/libavcodec/aarch64/huffyuvdsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/huffyuvdsp_neon.S
+    FFmpeg/libavcodec/aarch64/idctdsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/idctdsp_neon.S
+    FFmpeg/libavcodec/aarch64/me_cmp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/me_cmp_neon.S
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_init.c
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
+    FFmpeg/libavcodec/aarch64/mpegvideoencdsp_init.c
+    FFmpeg/libavcodec/aarch64/mpegvideoencdsp_neon.S
+    FFmpeg/libavcodec/aarch64/opusdsp_init.c
+    FFmpeg/libavcodec/aarch64/opusdsp_neon.S
+    FFmpeg/libavcodec/aarch64/pixblockdsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/pixblockdsp_neon.S
+    FFmpeg/libavcodec/aarch64/pngdsp_init.c
+    FFmpeg/libavcodec/aarch64/pngdsp_neon.S
+    FFmpeg/libavcodec/aarch64/rv40dsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/sbrdsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/sbrdsp_neon.S
+    FFmpeg/libavcodec/aarch64/synth_filter_init.c
+    FFmpeg/libavcodec/aarch64/synth_filter_neon.S
+    FFmpeg/libavcodec/aarch64/vc1dsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/vc1dsp_neon.S
     FFmpeg/libavcodec/aarch64/vorbisdsp_init.c
     FFmpeg/libavcodec/aarch64/vorbisdsp_neon.S
-    FFmpeg/libavcodec/aarch64/dct_init.c
-    FFmpeg/libavcodec/aarch64/dct_neon.S
-  )
-  set_source_files_properties(
-    FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
-    FFmpeg/libavcodec/aarch64/vorbisdsp_neon.S
-    FFmpeg/libavcodec/aarch64/dct_neon.S
-    PROPERTIES LANGUAGE ASM_ARM64
+    FFmpeg/libavcodec/aarch64/vp8dsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/vp8dsp_neon.S
+    FFmpeg/libavcodec/aarch64/vp9dsp_init_aarch64.c
+    FFmpeg/libavcodec/aarch64/vp9dsp_neon.S
   )
 endif()
 target_include_directories(libavcodec PRIVATE
