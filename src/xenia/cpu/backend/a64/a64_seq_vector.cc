@@ -493,7 +493,7 @@ EMITTER_OPCODE_TABLE(OPCODE_VECTOR_SUB, VECTOR_SUB);
 // OPCODE_VECTOR_SHL
 // ============================================================================
 template <typename T, std::enable_if_t<std::is_integral<T>::value, int> = 0>
-static uint8x16_t EmulateVectorShl(void*, std::byte src1[16],
+static ::uint8x16_t EmulateVectorShl(void*, std::byte src1[16],
                                    std::byte src2[16]) {
   alignas(16) T value[16 / sizeof(T)];
   alignas(16) T shamt[16 / sizeof(T)];
