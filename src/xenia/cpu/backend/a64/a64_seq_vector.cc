@@ -10,6 +10,7 @@
 #include "xenia/cpu/backend/a64/a64_sequences.h"
 #include "xenia/cpu/backend/a64/a64_util.h"
 
+#include <arm_neon.h>
 #include <algorithm>
 #include <cstring>
 
