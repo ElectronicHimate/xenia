@@ -185,7 +185,7 @@ def import_vs_environment():
     if os.access(vsdevcmd_path, os.X_OK):
         env_tool_args = [vsdevcmd_path, "-arch=arm64", "-host_arch=arm64", "&&", "set"]
     else:
-        vcvars_path = os.path.join(install_path, "VC", "Auxiliary", "Build", "vcvarsall.bat")'
+        vcvars_path = os.path.join(install_path, "VC", "Auxiliary", "Build", "vcvarsall.bat")
         env_tool_args = [vcvars_path, "arm64", "&&", "set"]
 
     if not version:
