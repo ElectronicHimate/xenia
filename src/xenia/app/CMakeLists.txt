@@ -74,6 +74,7 @@ target_link_libraries(xenia-app PRIVATE
   discord-rpc
   glslang-spirv
   imgui
+  libavformat
   libavcodec
   libavutil
   mspack
