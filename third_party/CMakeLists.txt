@@ -460,8 +460,6 @@ function(ffmpeg_common target)
   set_target_properties(${target} PROPERTIES LINKER_LANGUAGE C)
 endfunction()
 
-enable_language(ASM_ARM64)
-
 # --- libavutil ---
 add_library(libavutil STATIC
   FFmpeg/libavutil/adler32.c
