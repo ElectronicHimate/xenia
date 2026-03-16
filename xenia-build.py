@@ -1934,7 +1934,7 @@ class DevenvCommand(Command):
                 "cmake",
                 "-S", ".",
                 "-B", vs_build_dir,
-                "-A", "x64",
+                "-A", "arm64",
                 "-DXENIA_BUILD_TESTS=ON",
             ])
             sln_path = os.path.join(vs_build_dir, "xenia.sln")
