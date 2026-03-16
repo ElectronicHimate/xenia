@@ -605,6 +605,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
   target_sources(libavcodec PRIVATE ${_codec_arch})
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   file(GLOB _codec_arch "FFmpeg/libavcodec/aarch64/*.c")
+  list(FILTER _codec_arch EXCLUDE REGEX "neontest\\.c$")
   target_sources(libavcodec PRIVATE ${_codec_arch})
 endif()
 
