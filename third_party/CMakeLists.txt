@@ -550,6 +550,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
     FFmpeg/libavutil/aarch64/float_dsp_init.c
     FFmpeg/libavutil/aarch64/float_dsp_neon.S
   )
+  set_source_files_properties(FFmpeg/libavutil/aarch64/float_dsp_neon.S PROPERTIES LANGUAGE ASM_MARMASM)
 endif()
 ffmpeg_common(libavutil)
 
@@ -585,9 +586,16 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/utils.c
   FFmpeg/libavcodec/vorbis_parser.c
   FFmpeg/libavcodec/xiph.c
+  # Math / Transforms
   FFmpeg/libavcodec/dct.c
   FFmpeg/libavcodec/dct32_fixed.c
   FFmpeg/libavcodec/dct32_float.c
+  FFmpeg/libavcodec/fft_fixed.c
+  FFmpeg/libavcodec/fft_float.c
+  FFmpeg/libavcodec/fft_init_table.c
+  FFmpeg/libavcodec/rdft.c
+  FFmpeg/libavcodec/mdct_fixed.c
+  FFmpeg/libavcodec/mdct_float.c
   FFmpeg/libavcodec/faandct.c
   FFmpeg/libavcodec/faanidct.c
   FFmpeg/libavcodec/fdctdsp.c
@@ -596,7 +604,7 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/idctdsp.c
   FFmpeg/libavcodec/simple_idct.c
   FFmpeg/libavcodec/jrevdct.c
-  FFmpeg/libavcodec/mdct_float.c
+  # Audio
   FFmpeg/libavcodec/mpegaudio.c
   FFmpeg/libavcodec/mpegaudiodec_common.c
   FFmpeg/libavcodec/mpegaudiodsp.c
@@ -615,6 +623,7 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/wmadec.c
   FFmpeg/libavcodec/aactab.c
   FFmpeg/libavcodec/mpegaudio_parser.c
+  # Threads / BSF
   FFmpeg/libavcodec/pthread.c
   FFmpeg/libavcodec/pthread_slice.c
   FFmpeg/libavcodec/pthread_frame.c
@@ -640,6 +649,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_init.c
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
   )
+  set_source_files_properties(FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S PROPERTIES LANGUAGE ASM_MARMASM)
 endif()
 
 target_include_directories(libavcodec PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/FFmpeg/libavcodec)
