@@ -475,7 +475,6 @@ add_library(libavutil STATIC
   FFmpeg/libavutil/cast5.c
   FFmpeg/libavutil/camellia.c
   FFmpeg/libavutil/channel_layout.c
-  FFmpeg/libavutil/avcsp.c
   FFmpeg/libavutil/cpu.c
   FFmpeg/libavutil/crc.c
   FFmpeg/libavutil/des.c
