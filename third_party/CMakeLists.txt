@@ -478,22 +478,31 @@ endfunction()
 
 # --- libavutil ---
 add_library(libavutil STATIC)
-file(GLOB_RECURSE _util_srcs "FFmpeg/libavutil/*.c")
-list(FILTER _util_srcs EXCLUDE REGEX "FFmpeg/libavutil/hwcontext_amf\\.c$")
-list(FILTER _util_srcs EXCLUDE REGEX "FFmpeg/libavutil/hwcontext_cuda\\.c$")
-list(FILTER _util_srcs EXCLUDE REGEX "FFmpeg/libavutil/hwcontext_drm\\.c$")
-list(FILTER _util_srcs EXCLUDE REGEX "FFmpeg/libavutil/hwcontext_v4l2\\.c$")
-list(FILTER _util_srcs EXCLUDE REGEX "FFmpeg/libavutil/hwcontext_vaapi\\.c$")
-list(FILTER _util_srcs EXCLUDE REGEX "FFmpeg/libavutil/hwcontext_vdpau\\.c$")
-list(FILTER _util_srcs EXCLUDE REGEX "FFmpeg/libavutil/arm/.*\\.c$")
-target_sources(libavutil PRIVATE ${_util_srcs})
+file(GLOB _util_core "FFmpeg/libavutil/*.c")
+file(GLOB _util_aarch64 "FFmpeg/libavutil/aarch64/*.c")
+
+list(FILTER _util_core EXCLUDE REGEX "hwcontext_.*\\.c$")
+
+target_sources(libavutil PRIVATE ${_util_core} ${_util_aarch64})
+
+if(WIN32)
+  target_sources(libavutil PRIVATE 
+    FFmpeg/libavutil/hwcontext_d3d11va.c
+    FFmpeg/libavutil/hwcontext_d3d12va.c
+    FFmpeg/libavutil/hwcontext_dxva2.c
+  )
+endif()
 ffmpeg_common(libavutil)
 
 # --- libavcodec ---
 add_library(libavcodec STATIC)
-file(GLOB_RECURSE _codec_srcs "FFmpeg/libavcodec/*.c")
-list(FILTER _codec_srcs EXCLUDE REGEX "neontest\\.c$")
-target_sources(libavcodec PRIVATE ${_codec_srcs})
+file(GLOB _codec_core "FFmpeg/libavcodec/*.c")
+file(GLOB _codec_aarch64 "FFmpeg/libavcodec/aarch64/*.c")
+
+list(FILTER _codec_core EXCLUDE REGEX "neontest\\.c$")
+list(FILTER _codec_core EXCLUDE REGEX ".*_template\\.c$")
+
+target_sources(libavcodec PRIVATE ${_codec_core} ${_codec_aarch64})
 target_link_libraries(libavcodec PRIVATE libavutil)
 ffmpeg_common(libavcodec)
 
