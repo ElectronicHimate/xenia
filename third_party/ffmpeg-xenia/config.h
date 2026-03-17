@@ -31,7 +31,11 @@
 #define ARCH_PPC 0
 #define ARCH_X86 0
 #define ARCH_X86_64 0
-
+#define HAVE_PPC 0
+#define HAVE_MIPS 0
+#define HAVE_MIPS64 0
+#define HAVE_LOONGARCH 0
+#define HAVE_RISCV 0
 #define HAVE_MMX 0
 #define HAVE_MMXEXT 0
 #define HAVE_SSE 0
