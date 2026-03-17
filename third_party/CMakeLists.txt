@@ -557,6 +557,7 @@ ffmpeg_common(libavutil)
 
 # --- libavcodec ---
 add_library(libavcodec STATIC
+  ffmpeg-xenia/ffmpeg_stubs.c
   FFmpeg/libavcodec/ac3_parser.c
   FFmpeg/libavcodec/adts_parser.c
   FFmpeg/libavcodec/allcodecs.c
