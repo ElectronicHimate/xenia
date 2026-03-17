@@ -476,6 +476,7 @@ file(GLOB _util_core "FFmpeg/libavutil/*.c")
 file(GLOB _util_aarch64 "FFmpeg/libavutil/aarch64/*.c")
 list(FILTER _util_core EXCLUDE REGEX "hwcontext_.*\\.c$")
 list(FILTER _util_core EXCLUDE REGEX "macos_.*\\.c$")
+list(FILTER _util_core EXCLUDE REGEX ".*_template\\.c$")
 target_sources(libavutil PRIVATE ${_util_core} ${_util_aarch64})
 if(WIN32)
   target_sources(libavutil PRIVATE 
