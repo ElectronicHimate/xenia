@@ -184,10 +184,10 @@ def import_vs_environment():
 
     vsdevcmd_path = os.path.join(install_path, "Common7", "Tools", "VsDevCmd.bat")
     if os.access(vsdevcmd_path, os.X_OK):
-        env_tool_args = [vsdevcmd_path, "-arch=amd64", "-host_arch=amd64", "&&", "set"]
+        env_tool_args = [vsdevcmd_path, "-arch=arm64", "-host_arch=arm64", "&&", "set"]
     else:
         vcvars_path = os.path.join(install_path, "VC", "Auxiliary", "Build", "vcvarsall.bat")
-        env_tool_args = [vcvars_path, "x64", "&&", "set"]
+        env_tool_args = [vcvars_path, "arm64", "&&", "set"]
 
     if not version:
         return None
@@ -1935,7 +1935,7 @@ class DevenvCommand(Command):
                 "cmake",
                 "-S", ".",
                 "-B", vs_build_dir,
-                "-A", "x64",
+                "-A", "arm64",
                 "-DXENIA_BUILD_TESTS=ON",
             ])
             sln_path = os.path.join(vs_build_dir, "xenia.sln")
