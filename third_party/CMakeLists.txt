@@ -462,6 +462,7 @@ endfunction()
 
 # --- libavutil ---
 add_library(libavutil STATIC
+  ffmpeg-xenia/ffmpeg_stubs.c
   FFmpeg/libavutil/adler32.c
   FFmpeg/libavutil/aes.c
   FFmpeg/libavutil/aes_ctr.c
