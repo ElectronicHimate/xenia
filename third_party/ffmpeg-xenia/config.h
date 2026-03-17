@@ -32,6 +32,20 @@
 #define ARCH_X86 0
 #define ARCH_X86_64 0
 
+#define HAVE_MMX 0
+#define HAVE_MMXEXT 0
+#define HAVE_SSE 0
+#define HAVE_SSE2 0
+#define HAVE_SSE3 0
+#define HAVE_SSSE3 0
+#define HAVE_SSE4 0
+#define HAVE_SSE42 0
+#define HAVE_AVX 0
+#define HAVE_AVX2 0
+#define HAVE_AVX512 0
+#define HAVE_FMA3 0
+#define HAVE_FMA4 0
+
 #if defined(__aarch64__) || defined(_M_ARM64 )
   /* ARM64 (Windows, Android) */
   #if defined(_WIN32)
