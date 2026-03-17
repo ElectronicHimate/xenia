@@ -52,8 +52,8 @@
 	url = https://github.com/Cyan4973/xxHash.git
 [submodule "third_party/FFmpeg"]
 	path = third_party/FFmpeg
-	url = https://github.com/has207/FFmpeg.git
-	branch = xmaframes
+	url = https://github.com/Wunkolo/ffmpeg-xenia.git
+	branch = canary-arm64-windows
 [submodule "third_party/FidelityFX-CAS"]
 	path = third_party/FidelityFX-CAS
 	url = https://github.com/GPUOpen-Effects/FidelityFX-CAS.git
