@@ -549,7 +549,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   target_sources(libavutil PRIVATE
     FFmpeg/libavutil/aarch64/cpu.c
     FFmpeg/libavutil/aarch64/float_dsp_init.c
-    FFmpeg/libavutil/aarch64/float_dsp_neon.S
+#    FFmpeg/libavutil/aarch64/float_dsp_neon.S
   )
   set_source_files_properties(FFmpeg/libavutil/aarch64/float_dsp_neon.S PROPERTIES LANGUAGE ASM_MARMASM)
 endif()
@@ -646,7 +646,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   target_sources(libavcodec PRIVATE
     FFmpeg/libavcodec/aarch64/idctdsp_init_aarch64.c
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_init.c
-    FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
+#    FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
   )
   set_source_files_properties(FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S PROPERTIES LANGUAGE ASM_MARMASM)
 endif()
