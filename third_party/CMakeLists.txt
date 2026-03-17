@@ -689,3 +689,18 @@ endif()
 target_link_libraries(libavformat PRIVATE libavutil libavcodec
 )
 ffmpeg_common(libavformat)
+if(MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
+  set(ARM_ASM_SOURCES
+    FFmpeg/libavutil/aarch64/float_dsp_neon.S
+    FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
+  )
+
+  set_source_files_properties(${ARM_ASM_SOURCES} PROPERTIES 
+    COMPILE_FLAGS ""
+    COMPILE_OPTIONS ""
+  )
+  
+  set_source_files_properties(${ARM_ASM_SOURCES} PROPERTIES 
+    LANGUAGE ASM_MARMASM
+  )
+endif()
