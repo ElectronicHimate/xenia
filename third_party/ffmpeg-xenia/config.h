@@ -442,4 +442,6 @@
 /* Enabled bitstream filters */
 #define CONFIG_NULL_BSF 1
 
+#define CONFIG_FRAME_THREAD_ENCODER 0
+
 #endif /* FFMPEG_CONFIG_H */
