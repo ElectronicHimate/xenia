@@ -442,16 +442,6 @@
 /* Enabled bitstream filters */
 #define CONFIG_NULL_BSF 1
 
-#define ff_get_cpu_flags_arm(...) 0
-#define ff_get_cpu_flags_ppc(...) 0
-#define ff_get_cpu_flags_mips(...) 0
-#define ff_get_cpu_flags_x86(...) 0
-
-#define ff_get_cpu_max_align_x86(...) 8
-#define ff_get_cpu_max_align_ppc(...) 8
-#define ff_get_cpu_max_align_arm(...) 8
-#define ff_get_cpu_max_align_mips(...) 8
-
 #undef HAVE_PPC
 #define HAVE_PPC 0
 #undef HAVE_MIPS
