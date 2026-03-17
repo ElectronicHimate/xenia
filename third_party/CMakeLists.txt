@@ -678,5 +678,6 @@ add_library(libavformat STATIC
 if(WIN32)
   target_sources(libavformat PRIVATE FFmpeg/libavformat/file_open.c)
 endif()
-target_link_libraries(libavformat PRIVATE libavutil libavcodec)
+target_link_libraries(libavformat PRIVATE libavutil libavcodec
+)
 ffmpeg_common(libavformat)
