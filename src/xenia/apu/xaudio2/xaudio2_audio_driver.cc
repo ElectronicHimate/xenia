@@ -308,13 +308,8 @@ void XAudio2AudioDriver::Shutdown() {
 
 template <typename Objects>
 void XAudio2AudioDriver::ShutdownObjects(Objects& objects) {
-  // Stop the engine first to ensure no callbacks are in-flight before
-  // destroying voices and the callback object.
-  if (objects.audio) {
-    objects.audio->StopEngine();
-  }
-
   if (objects.pcm_voice) {
+    objects.pcm_voice->Stop();
     objects.pcm_voice->DestroyVoice();
     objects.pcm_voice = nullptr;
   }
@@ -325,6 +320,7 @@ void XAudio2AudioDriver::ShutdownObjects(Objects& objects) {
   }
 
   if (objects.audio) {
+    objects.audio->StopEngine();
     objects.audio->Release();
     objects.audio = nullptr;
   }
