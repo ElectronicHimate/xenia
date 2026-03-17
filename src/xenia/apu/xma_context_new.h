@@ -55,6 +55,7 @@ class XmaContextNew : public XmaContext {
   bool Work();
 
   void Enable();
+  bool Block(bool poll);
   void Clear();
   void Disable();
   void Release();

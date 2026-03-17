@@ -208,6 +208,17 @@ bool XmaContextNew::Work() {
 
 void XmaContextNew::Enable() { set_is_enabled(true); }
 
+bool XmaContextNew::Block(bool poll) {
+  if (!lock_.try_lock()) {
+    if (poll) {
+      return false;
+    }
+    lock_.lock();
+  }
+  lock_.unlock();
+  return true;
+}
+
 void XmaContextNew::Clear() {
   std::lock_guard<xe_mutex> lock(lock_);
 
