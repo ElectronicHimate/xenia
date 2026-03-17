@@ -590,11 +590,9 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/dct.c
   FFmpeg/libavcodec/dct32_fixed.c
   FFmpeg/libavcodec/dct32_float.c
-  FFmpeg/libavcodec/fft_fixed.c
   FFmpeg/libavcodec/fft_float.c
   FFmpeg/libavcodec/fft_init_table.c
   FFmpeg/libavcodec/rdft.c
-  FFmpeg/libavcodec/mdct_fixed.c
   FFmpeg/libavcodec/mdct_float.c
   FFmpeg/libavcodec/faandct.c
   FFmpeg/libavcodec/faanidct.c
