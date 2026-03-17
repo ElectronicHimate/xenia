@@ -427,28 +427,21 @@ function(ffmpeg_common target)
   target_compile_definitions(${target} PRIVATE
     HAVE_AV_CONFIG_H
     _USE_MATH_DEFINES
-    HAVE_I8MM=0
-    HAVE_SVE=0
-    HAVE_SVE2=0
-    HAVE_DOTPROD=0
-    HAVE_NEON=1
-    HAVE_ARMV8=1
-    HAVE_VFP=0
-    HAVE_ASM=1
-    HAVE_MMX=0
-    HAVE_SSE=0
-    HAVE_AVX=0
+    HAVE_I8MM=0 HAVE_SVE=0 HAVE_SVE2=0 HAVE_DOTPROD=0
+    HAVE_NEON=1 HAVE_ARMV8=1 HAVE_VFP=0 HAVE_ASM=1
+    HAVE_MMX=0 HAVE_SSE=0 HAVE_AVX=0
     _CRT_SECURE_NO_WARNINGS
     _CRT_NONSTDC_NO_WARNINGS
     CONFIG_FFT=1
     CONFIG_MDCT=1
     CONFIG_IMDCT15=1
+    # Force these to be visible to ac3dec.c
     IMDCT_FLOAT=1
     IMDCT_FIXED=0
-    # Added to satisfy ac3dec specifically
-    CONFIG_AC3_FLOAT=1
-    CONFIG_EAC3_DECODER=1
+    # FFmpeg internally uses these to select the right code paths
     CONFIG_AC3_DECODER=1
+    CONFIG_EAC3_DECODER=1
+    CONFIG_AC3_FLOAT=1 
     CONFIG_AAC_DECODER=1
     CONFIG_MP3_DECODER=1
     CONFIG_WMAV1_DECODER=1
@@ -525,6 +518,11 @@ list(FILTER _codec_core EXCLUDE REGEX "vulkan.*\\.c$")
 list(FILTER _codec_core EXCLUDE REGEX "hwaccel.*\\.c$")
 list(FILTER _codec_core EXCLUDE REGEX "hwcontext.*\\.c$")
 list(FILTER _codec_core EXCLUDE REGEX ".*enc\\.c$")
+
+# EXCLUDE the generic ac3dec/enc files that cause macro conflicts
+list(FILTER _codec_core EXCLUDE REGEX "ac3dec\\.c$")
+list(FILTER _codec_core EXCLUDE REGEX "ac3enc\\.c$")
+
 target_sources(libavcodec PRIVATE ${_codec_core} ${_codec_aarch64})
 target_link_libraries(libavcodec PRIVATE libavutil)
 ffmpeg_common(libavcodec)
