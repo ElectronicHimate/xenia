@@ -534,7 +534,6 @@ add_library(libavutil STATIC
   FFmpeg/libavutil/tx.c
   FFmpeg/libavutil/video_enc_params.c
   FFmpeg/libavutil/film_grain_params.c
-  FFmpeg/libavutil/timestamp.c
 )
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
   # x86 platform files
@@ -638,7 +637,6 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   # aarch64 platform files
   target_sources(libavcodec PRIVATE
-    FFmpeg/libavcodec/aarch64/fdctdsp_init_aarch64.c
     FFmpeg/libavcodec/aarch64/fdctdsp_neon.S
     FFmpeg/libavcodec/aarch64/idctdsp_init_aarch64.c
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_init.c
