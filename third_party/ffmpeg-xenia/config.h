@@ -444,4 +444,13 @@
 
 #define CONFIG_FRAME_THREAD_ENCODER 0
 
+#define ff_get_cpu_flags_arm() 0
+#define ff_get_cpu_flags_ppc() 0
+#define ff_get_cpu_flags_mips() 0
+#define ff_get_cpu_flags_x86() 0
+#define ff_get_cpu_max_align_x86() 8
+#define ff_get_cpu_max_align_ppc() 8
+#define ff_get_cpu_max_align_arm() 8
+#define ff_get_cpu_max_align_mips() 8
+
 #endif /* FFMPEG_CONFIG_H */
