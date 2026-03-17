@@ -130,7 +130,7 @@ ProcessAudioResult ProcessAudioLoop(AudioMediaPlayer* player,
           break;
         }
 
-        ConvertAudioFrame(frame, avctx->ch_layout.nb_channels, &frameBuffer);
+        ConvertAudioFrame(frame, avctx->channels, &frameBuffer);
         player->ProcessAudioBuffer(&frameBuffer);
       }
     }
@@ -230,8 +230,7 @@ void AudioMediaPlayer::Play() {
   AVCodecContext* codecContext = nullptr;
   InitializeAndOpenAvCodec(song_buffer, formatContext, codecContext);
 
-  if (!SetupDriver(codecContext->sample_rate,
-                   codecContext->ch_layout.nb_channels)) {
+  if (!SetupDriver(codecContext->sample_rate, codecContext->channels)) {
     XELOGE("Driver initialization failed!");
     avcodec_free_context(&codecContext);
     av_freep(&formatContext->pb->buffer);
