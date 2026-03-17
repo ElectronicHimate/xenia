@@ -596,7 +596,6 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/idctdsp.c
   FFmpeg/libavcodec/simple_idct.c
   FFmpeg/libavcodec/jrevdct.c
-  FFmpeg/libavcodec/mdct_fixed.c
   FFmpeg/libavcodec/mdct_float.c
   FFmpeg/libavcodec/mpegaudio.c
   FFmpeg/libavcodec/mpegaudiodec_common.c
