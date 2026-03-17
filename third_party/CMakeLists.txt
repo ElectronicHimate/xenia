@@ -698,9 +698,6 @@ if(MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   set_source_files_properties(${ARM_ASM_SOURCES} PROPERTIES 
     COMPILE_FLAGS ""
     COMPILE_OPTIONS ""
-  )
-  
-  set_source_files_properties(${ARM_ASM_SOURCES} PROPERTIES 
     LANGUAGE ASM_MARMASM
   )
 endif()
