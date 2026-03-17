@@ -535,19 +535,18 @@ add_library(libavutil STATIC
   FFmpeg/libavutil/video_enc_params.c
   FFmpeg/libavutil/film_grain_params.c
 )
+
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-  # x86 platform files
   target_sources(libavutil PRIVATE
     FFmpeg/libavutil/x86/cpu.c
     FFmpeg/libavutil/x86/fixed_dsp_init.c
     FFmpeg/libavutil/x86/float_dsp_init.c
     FFmpeg/libavutil/x86/imgutils_init.c
     FFmpeg/libavutil/x86/lls_init.c
-    FFmpeg/libavutil/x86/tx_float_init.c
   )
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-  # aarch64 platform files
   target_sources(libavutil PRIVATE
+    FFmpeg/libavutil/aarch64/cpu.c
     FFmpeg/libavutil/aarch64/float_dsp_init.c
     FFmpeg/libavutil/aarch64/float_dsp_neon.S
   )
@@ -586,6 +585,7 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/utils.c
   FFmpeg/libavcodec/vorbis_parser.c
   FFmpeg/libavcodec/xiph.c
+  FFmpeg/libavcodec/dct.c
   FFmpeg/libavcodec/dct32_fixed.c
   FFmpeg/libavcodec/dct32_float.c
   FFmpeg/libavcodec/faandct.c
@@ -596,6 +596,8 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/idctdsp.c
   FFmpeg/libavcodec/simple_idct.c
   FFmpeg/libavcodec/jrevdct.c
+  FFmpeg/libavcodec/mdct_fixed.c
+  FFmpeg/libavcodec/mdct_float.c
   FFmpeg/libavcodec/mpegaudio.c
   FFmpeg/libavcodec/mpegaudiodec_common.c
   FFmpeg/libavcodec/mpegaudiodsp.c
@@ -620,11 +622,12 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/null_bsf.c
   FFmpeg/libavcodec/tiff_common.c
 )
+
 if(WIN32)
   target_sources(libavcodec PRIVATE FFmpeg/libavcodec/file_open.c)
 endif()
+
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-  # x86 platform files
   target_sources(libavcodec PRIVATE
     FFmpeg/libavcodec/x86/constants.c
     FFmpeg/libavcodec/x86/fdctdsp_init.c
@@ -633,16 +636,14 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
     FFmpeg/libavcodec/x86/fdct.c
   )
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
-  # aarch64 platform files
   target_sources(libavcodec PRIVATE
     FFmpeg/libavcodec/aarch64/idctdsp_init_aarch64.c
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_init.c
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
   )
 endif()
-target_include_directories(libavcodec PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/FFmpeg/libavcodec
-)
+
+target_include_directories(libavcodec PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/FFmpeg/libavcodec)
 target_link_libraries(libavcodec PRIVATE libavutil)
 ffmpeg_common(libavcodec)
 
