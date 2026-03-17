@@ -440,6 +440,11 @@ function(ffmpeg_common target)
     HAVE_AVX=0
     _CRT_SECURE_NO_WARNINGS
     _CRT_NONSTDC_NO_WARNINGS
+    CONFIG_FFT=1
+    CONFIG_MDCT=1
+    CONFIG_IMDCT15=1
+    IMDCT_FLOAT=1
+    IMDCT_FIXED=0
     CONFIG_AAC_DECODER=1
     CONFIG_AC3_DECODER=1
     CONFIG_EAC3_DECODER=1
@@ -449,11 +454,14 @@ function(ffmpeg_common target)
     CONFIG_WMAPRO_DECODER=1
     CONFIG_XMA1_DECODER=1
     CONFIG_XMA2_DECODER=1
+    CONFIG_AC3_ENCODER=0
+    CONFIG_EAC3_ENCODER=0
     CONFIG_AAC_PARSER=1
     CONFIG_AC3_PARSER=1
     CONFIG_ERROR_RESILIENCE=1
     CONFIG_DWT=1
     CONFIG_LSP=1
+    CONFIG_SINEWIN=1
   )
   target_include_directories(${target} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-xenia
@@ -488,14 +496,11 @@ endfunction()
 add_library(libavutil STATIC)
 file(GLOB _util_core "FFmpeg/libavutil/*.c")
 file(GLOB _util_aarch64 "FFmpeg/libavutil/aarch64/*.c")
-
 list(FILTER _util_core EXCLUDE REGEX "hwcontext_.*\\.c$")
 list(FILTER _util_core EXCLUDE REGEX "macos_.*\\.c$")
 list(FILTER _util_core EXCLUDE REGEX ".*_template\\.c$")
 list(FILTER _util_core EXCLUDE REGEX "vulkan.*\\.c$")
-
 target_sources(libavutil PRIVATE ${_util_core} ${_util_aarch64})
-
 if(WIN32)
   target_sources(libavutil PRIVATE 
     FFmpeg/libavutil/hwcontext_d3d11va.c
@@ -509,7 +514,6 @@ ffmpeg_common(libavutil)
 add_library(libavcodec STATIC)
 file(GLOB _codec_core "FFmpeg/libavcodec/*.c")
 file(GLOB _codec_aarch64 "FFmpeg/libavcodec/aarch64/*.c")
-
 list(FILTER _codec_core EXCLUDE REGEX "neontest\\.c$")
 list(FILTER _codec_core EXCLUDE REGEX ".*_template\\.c$")
 list(FILTER _codec_core EXCLUDE REGEX "vaapi_.*\\.c$")
@@ -518,7 +522,7 @@ list(FILTER _codec_core EXCLUDE REGEX "videotoolbox_.*\\.c$")
 list(FILTER _codec_core EXCLUDE REGEX "vulkan.*\\.c$")
 list(FILTER _codec_core EXCLUDE REGEX "hwaccel.*\\.c$")
 list(FILTER _codec_core EXCLUDE REGEX "hwcontext.*\\.c$")
-
+list(FILTER _codec_core EXCLUDE REGEX ".*enc\\.c$")
 target_sources(libavcodec PRIVATE ${_codec_core} ${_codec_aarch64})
 target_link_libraries(libavcodec PRIVATE libavutil)
 ffmpeg_common(libavcodec)
@@ -527,10 +531,8 @@ ffmpeg_common(libavcodec)
 add_library(libavformat STATIC)
 file(GLOB _format_core "FFmpeg/libavformat/*.c")
 target_sources(libavformat PRIVATE ${_format_core})
-
 if(WIN32)
   target_sources(libavformat PRIVATE FFmpeg/libavformat/file_open.c)
 endif()
-
 target_link_libraries(libavformat PRIVATE libavutil libavcodec)
 ffmpeg_common(libavformat)
