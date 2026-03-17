@@ -475,7 +475,7 @@ add_library(libavutil STATIC
   FFmpeg/libavutil/cast5.c
   FFmpeg/libavutil/camellia.c
   FFmpeg/libavutil/channel_layout.c
-  FFmpeg/libavutil/csp.c
+  FFmpeg/libavutil/avcsp.c
   FFmpeg/libavutil/cpu.c
   FFmpeg/libavutil/crc.c
   FFmpeg/libavutil/des.c
@@ -574,7 +574,7 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/allcodecs.c
   FFmpeg/libavcodec/avcodec.c
   FFmpeg/libavcodec/avdct.c
-  FFmpeg/libavcodec/packet.c
+  FFmpeg/libavcodec/avpacket.c
   FFmpeg/libavcodec/bitstream.c
   FFmpeg/libavcodec/bitstream_filters.c
   FFmpeg/libavcodec/bsf.c
@@ -692,7 +692,6 @@ add_library(libavformat STATIC
   FFmpeg/libavformat/mp3dec.c
   FFmpeg/libavformat/replaygain.c
   FFmpeg/libavformat/file.c
-  FFmpeg/libavformat/demux.c
   FFmpeg/libavformat/avformat.c
   FFmpeg/libavformat/seek.c
   FFmpeg/libavformat/demux_utils.c
