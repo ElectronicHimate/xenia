@@ -626,7 +626,6 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/mpegaudiotabs.c
   FFmpeg/libavcodec/tiff_common.c
 )
-)
 if(WIN32)
   target_sources(libavcodec PRIVATE FFmpeg/libavcodec/file_open.c)
 endif()
