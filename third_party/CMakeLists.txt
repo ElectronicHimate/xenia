@@ -621,6 +621,7 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/pthread.c
   FFmpeg/libavcodec/pthread_slice.c
   FFmpeg/libavcodec/pthread_frame.c
+  FFmpeg/libavcodec/null_bsf.c
   FFmpeg/libavcodec/mpegaudiotabs.c
   FFmpeg/libavcodec/tiff_common.c
 )
