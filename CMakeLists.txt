@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(xenia LANGUAGES C CXX)
-
+enable_language(ASM_MARMASM)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 17)
