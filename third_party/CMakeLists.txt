@@ -550,8 +550,6 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   target_sources(libavutil PRIVATE
     FFmpeg/libavutil/aarch64/float_dsp_init.c
     FFmpeg/libavutil/aarch64/float_dsp_neon.S
-    FFmpeg/libavutil/aarch64/tx_float_init.c
-    FFmpeg/libavutil/aarch64/tx_float_neon.S
   )
 endif()
 ffmpeg_common(libavutil)
@@ -637,7 +635,6 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
   # aarch64 platform files
   target_sources(libavcodec PRIVATE
-    FFmpeg/libavcodec/aarch64/fdctdsp_neon.S
     FFmpeg/libavcodec/aarch64/idctdsp_init_aarch64.c
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_init.c
     FFmpeg/libavcodec/aarch64/mpegaudiodsp_neon.S
