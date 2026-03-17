@@ -532,14 +532,10 @@ add_library(libavutil STATIC
   FFmpeg/libavutil/xtea.c
   FFmpeg/libavutil/tea.c
   FFmpeg/libavutil/tx.c
-  FFmpeg/libavutil/tx_float.c
-  FFmpeg/libavutil/tx_double.c
-  FFmpeg/libavutil/tx_int32.c
   FFmpeg/libavutil/video_enc_params.c
   FFmpeg/libavutil/film_grain_params.c
   FFmpeg/libavutil/float_scalarproduct.c
   FFmpeg/libavutil/timecode_internal.c
-  FFmpeg/libavutil/iamf.c
   FFmpeg/libavutil/timestamp.c
 )
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
@@ -627,9 +623,9 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/pthread_slice.c
   FFmpeg/libavcodec/pthread_frame.c
   FFmpeg/libavcodec/bsf/null.c
-  FFmpeg/libavcodec/exif.c
   FFmpeg/libavcodec/mpegaudiotabs.c
   FFmpeg/libavcodec/tiff_common.c
+)
 )
 if(WIN32)
   target_sources(libavcodec PRIVATE FFmpeg/libavcodec/file_open.c)
@@ -687,7 +683,6 @@ add_library(libavformat STATIC
   FFmpeg/libavformat/file.c
   FFmpeg/libavformat/urldecode.c
   FFmpeg/libavformat/asf_tags.c
-  FFmpeg/libavformat/to_upper4.c
 )
 if(WIN32)
   target_sources(libavformat PRIVATE FFmpeg/libavformat/file_open.c)
