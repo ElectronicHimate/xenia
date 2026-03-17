@@ -534,7 +534,6 @@ add_library(libavutil STATIC
   FFmpeg/libavutil/tx.c
   FFmpeg/libavutil/video_enc_params.c
   FFmpeg/libavutil/film_grain_params.c
-  FFmpeg/libavutil/timecode_internal.c
   FFmpeg/libavutil/timestamp.c
 )
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
@@ -622,7 +621,6 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/pthread_slice.c
   FFmpeg/libavcodec/pthread_frame.c
   FFmpeg/libavcodec/null_bsf.c
-  FFmpeg/libavcodec/mpegaudiotabs.c
   FFmpeg/libavcodec/tiff_common.c
 )
 if(WIN32)
