@@ -534,7 +534,6 @@ add_library(libavutil STATIC
   FFmpeg/libavutil/tx.c
   FFmpeg/libavutil/video_enc_params.c
   FFmpeg/libavutil/film_grain_params.c
-  FFmpeg/libavutil/float_scalarproduct.c
   FFmpeg/libavutil/timecode_internal.c
   FFmpeg/libavutil/timestamp.c
 )
@@ -622,7 +621,6 @@ add_library(libavcodec STATIC
   FFmpeg/libavcodec/pthread.c
   FFmpeg/libavcodec/pthread_slice.c
   FFmpeg/libavcodec/pthread_frame.c
-  FFmpeg/libavcodec/bsf/null.c
   FFmpeg/libavcodec/mpegaudiotabs.c
   FFmpeg/libavcodec/tiff_common.c
 )
@@ -681,7 +679,6 @@ add_library(libavformat STATIC
   FFmpeg/libavformat/replaygain.c
   FFmpeg/libavformat/file.c
   FFmpeg/libavformat/urldecode.c
-  FFmpeg/libavformat/asf_tags.c
 )
 if(WIN32)
   target_sources(libavformat PRIVATE FFmpeg/libavformat/file_open.c)
