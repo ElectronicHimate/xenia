@@ -478,12 +478,13 @@ endfunction()
 
 # --- libavutil ---
 add_library(libavutil STATIC)
-file(GLOB _util_core "FFmpeg/libavutil/*.c")
+file(GLOB _util_srcs "FFmpeg/libavutil/*.c")
 file(GLOB _util_aarch64 "FFmpeg/libavutil/aarch64/*.c")
 
-list(FILTER _util_core EXCLUDE REGEX "hwcontext_.*\\.c$")
+list(FILTER _util_srcs EXCLUDE REGEX "macos_.*\\.c$")
+list(FILTER _util_srcs EXCLUDE REGEX "hwcontext_.*\\.c$")
 
-target_sources(libavutil PRIVATE ${_util_core} ${_util_aarch64})
+target_sources(libavutil PRIVATE ${_util_srcs} ${_util_aarch64})
 
 if(WIN32)
   target_sources(libavutil PRIVATE 
@@ -496,19 +497,19 @@ ffmpeg_common(libavutil)
 
 # --- libavcodec ---
 add_library(libavcodec STATIC)
-file(GLOB _codec_core "FFmpeg/libavcodec/*.c")
+file(GLOB _codec_srcs "FFmpeg/libavcodec/*.c")
 file(GLOB _codec_aarch64 "FFmpeg/libavcodec/aarch64/*.c")
 
-list(FILTER _codec_core EXCLUDE REGEX "neontest\\.c$")
-list(FILTER _codec_core EXCLUDE REGEX ".*_template\\.c$")
+list(FILTER _codec_srcs EXCLUDE REGEX "neontest\\.c$")
+list(FILTER _codec_srcs EXCLUDE REGEX ".*_template\\.c$")
 
-target_sources(libavcodec PRIVATE ${_codec_core} ${_codec_aarch64})
+target_sources(libavcodec PRIVATE ${_codec_srcs} ${_codec_aarch64})
 target_link_libraries(libavcodec PRIVATE libavutil)
 ffmpeg_common(libavcodec)
 
 # --- libavformat ---
 add_library(libavformat STATIC)
-file(GLOB_RECURSE _format_srcs "FFmpeg/libavformat/*.c")
+file(GLOB _format_srcs "FFmpeg/libavformat/*.c")
 target_sources(libavformat PRIVATE ${_format_srcs})
 
 if(WIN32)
